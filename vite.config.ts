@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       proxy: {
-        '/api': { target: env.NEXO_API_URL || 'http://127.0.0.1:8000', changeOrigin: true },
+        '/api': { target: (env.NEXO_API_URL || 'http://127.0.0.1:8000').replace(/\/+(api\/?)?$/, ''), changeOrigin: true },
       },
     },
   }
