@@ -1,5 +1,6 @@
 const TOKEN_KEY = 'reeforge.token'
-const BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? ''
+// Origin only: every path below already starts with /api, so a trailing /api is dropped.
+const BASE = ((import.meta.env.VITE_API_URL as string | undefined) ?? '').replace(/\/+(api\/?)?$/, '')
 
 export const tokenStore = {
   get: () => localStorage.getItem(TOKEN_KEY),
