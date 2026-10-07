@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reeforge design system</title>
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  body { margin: 0; }
+  .ds-wrap { max-width: 1200px; margin: 0 auto; padding: 0 var(--rf-gutter) var(--rf-space-16); }
+  .ds-top { position: sticky; top: 0; z-index: 10; background: var(--rf-glass-bg); -webkit-backdrop-filter: blur(var(--rf-glass-blur)) saturate(160%); backdrop-filter: blur(var(--rf-glass-blur)) saturate(160%); border-bottom: 1px solid var(--rf-glass-border); }
+  .ds-top-inner { max-width: 1200px; margin: 0 auto; padding: var(--rf-space-3) var(--rf-gutter); display: flex; gap: var(--rf-space-4); align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .ds-top nav { display: flex; gap: var(--rf-space-4); flex-wrap: wrap; font-size: var(--rf-text-sm); }
+  .ds-top nav a { color: var(--rf-text-muted); text-decoration: none; }
+  .ds-top nav a:hover { color: var(--rf-text); }
+  #pseudo-btn[aria-pressed="true"] { background: var(--rf-warning-bg); border-color: var(--rf-warning-border); color: var(--rf-warning); }
+  .ds-theme { display: inline-flex; border: 1px solid var(--rf-border-strong); border-radius: var(--rf-radius-md); overflow: hidden; }
+  .ds-theme button { border: 0; background: var(--rf-surface); color: var(--rf-text-muted); font: 500 var(--rf-text-sm) var(--rf-font-sans); padding: 6px 12px; cursor: pointer; }
+  .ds-theme button[aria-pressed="true"] { background: var(--rf-primary-soft); color: var(--rf-primary-text); }
+  .ds-hero { padding: var(--rf-space-12) 0 var(--rf-space-8); max-width: 760px; }
+  .ds-hero p { color: var(--rf-text-muted); font-size: var(--rf-text-body-lg); line-height: 1.6; margin: var(--rf-space-3) 0 0; }
+  .ds-section { padding: var(--rf-space-10) 0 var(--rf-space-4); border-top: 1px solid var(--rf-border); }
+  .ds-section > header { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--rf-space-2); margin-bottom: var(--rf-space-6); max-width: 760px; }
+  .ds-section > header p { margin: 0; color: var(--rf-text-muted); }
+  .ds-rules { margin: var(--rf-space-4) 0 0; padding-left: 18px; color: var(--rf-text-muted); font-size: var(--rf-text-sm); display: grid; gap: 4px; }
+  .ds-rules b { color: var(--rf-text); font-weight: 600; }
+  .ds-grid { display: grid; gap: var(--rf-space-4); }
+  .ds-cols-2 { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+  .ds-row { display: flex; gap: var(--rf-space-3); flex-wrap: wrap; align-items: center; }
+  .ds-caption { font-size: var(--rf-text-xs); color: var(--rf-text-muted); margin: var(--rf-space-5) 0 var(--rf-space-2); font-weight: 600; }
+  .ds-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--rf-space-3); }
+  .ds-swatch { border: 1px solid var(--rf-border); border-radius: var(--rf-radius-md); overflow: hidden; background: var(--rf-surface-data); }
+  .ds-swatch b { display: block; height: 56px; border-bottom: 1px solid var(--rf-border); }
+  .ds-swatch div { padding: var(--rf-space-2) var(--rf-space-3); font-size: var(--rf-text-xs); line-height: 1.5; }
+  .ds-swatch code { font-family: var(--rf-font-mono); color: var(--rf-text-muted); font-size: 11px; display: block; }
+  .ds-type-row { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: var(--rf-space-4); align-items: baseline; padding: var(--rf-space-4) 0; border-bottom: 1px solid var(--rf-border); }
+  .ds-type-row code { font-family: var(--rf-font-mono); font-size: 11px; color: var(--rf-text-muted); line-height: 1.6; }
+  .ds-space { display: flex; align-items: center; gap: var(--rf-space-3); font-size: var(--rf-text-xs); color: var(--rf-text-muted); font-family: var(--rf-font-mono); }
+  .ds-space i { display: block; height: 12px; background: var(--rf-primary); border-radius: 2px; }
+  .ds-radius { width: 88px; height: 64px; border: 1px solid var(--rf-border-strong); background: var(--rf-surface-subtle); display: grid; place-content: center; font-size: var(--rf-text-xs); color: var(--rf-text-muted); }
+  .ds-frame { position: relative; transform: translateZ(0); border: 1px solid var(--rf-border); border-radius: var(--rf-radius-lg); overflow: hidden; background: var(--rf-bg); box-shadow: var(--rf-shadow-md); }
+  .ds-frame .rf-topbar { position: relative; }
+  .ds-frame .rf-shell { min-height: 620px; }
+  .ds-login { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 560px; background: var(--rf-surface); }
+  .ds-login__side { position: relative; overflow: hidden; }
+  .ds-login__side > :not(.rf-fluid) { position: relative; z-index: 1; }
+  .ds-login__side .rf-fluid { --rf-fluid-1: rgba(58,159,216,.55); --rf-fluid-2: rgba(91,198,220,.4); --rf-fluid-3: rgba(26,125,181,.45); }
+  .ds-login__form { padding: var(--rf-space-12) var(--rf-space-10); display: flex; flex-direction: column; justify-content: center; max-width: 440px; width: 100%; margin: 0 auto; gap: var(--rf-space-4); }
+  .ds-login__side { background: var(--rf-gradient-ocean); color: #E6EDF3; padding: var(--rf-space-12) var(--rf-space-10); display: flex; flex-direction: column; justify-content: center; gap: var(--rf-space-8); }
+  .ds-login__side .rf-h2 { color: #E6EDF3; max-width: 22ch; }
+  .ds-receipt { font-size: var(--rf-text-body) !important; max-width: 400px !important; border: 1px solid rgba(255,255,255,.16); border-radius: var(--rf-radius-lg); padding: var(--rf-space-5); background: rgba(6,20,32,.5); -webkit-backdrop-filter: blur(20px) saturate(160%); backdrop-filter: blur(20px) saturate(160%); box-shadow: 0 12px 32px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.1); font-size: var(--rf-text-sm); display: grid; gap: var(--rf-space-2); max-width: 360px; }
+  .ds-receipt div { display: flex; justify-content: space-between; gap: var(--rf-space-4); }
+  .ds-receipt span:first-child { color: #95A3B2; }
+  .ds-receipt .rf-mono { color: #E6EDF3; }
+  @media (max-width: 900px) { .ds-login { grid-template-columns: 1fr; } .ds-login__side { display: none; } .ds-type-row { grid-template-columns: 1fr; } }
+  .ds-chart { width: 100%; height: 220px; display: block; }
+  .ds-legend { display: flex; gap: var(--rf-space-4); font-size: var(--rf-text-xs); color: var(--rf-text-muted); }
+  .ds-legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
+  .ds-do-dont { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--rf-space-4); }
+  .ds-do-dont ul { margin: var(--rf-space-2) 0 0; padding-left: 18px; display: grid; gap: 6px; font-size: var(--rf-text-sm); }
+</style>
+</head>
+<body class="rf-root">
+<div class="rf-fluid" aria-hidden="true"><span></span><span></span><span></span></div>
+
+<div class="ds-top"><div class="ds-top-inner">
+  <strong class="rf-h3" style="font-family:var(--rf-font-display)">Reeforge <span style="color:var(--rf-primary-text)">design system</span></strong>
+  <nav>
+    <a href="#colors">Colors</a><a href="#type">Type</a><a href="#space">Spacing</a><a href="#buttons">Buttons</a><a href="#forms">Forms</a><a href="#status">Status</a><a href="#data">Data</a><a href="#shell">App shell</a><a href="#login">Login</a><a href="#overlays">Overlays</a>
+  </nav>
+  <button class="rf-btn rf-btn--secondary rf-btn--sm" id="pseudo-btn" aria-pressed="false" title="Make every UI string ~35% longer to check that Bislama will fit">Long strings test</button>
+  <div class="ds-theme" role="group" aria-label="Theme">
+    <button data-theme-set="light">Light</button><button data-theme-set="dark">Dark</button><button data-theme-set="system" aria-pressed="true">System</button>
+  </div>
+</div></div>
+
+<div class="ds-wrap rf-above-fluid">
+
+<section class="ds-hero">
+  <h1 class="rf-display">Reeforge design system</h1>
+  <p>Shared visual base for every app in the Reeforge hub, starting with Reeforge Finance. Reef is the ocean: deep blue, calm, trustworthy, with light coming from above. Forge is the ember: the mark of something being made. Cool basalt is the ground they share. Reforge lives in motion: things visibly get better. Source of truth: <code class="rf-mono">DESIGN.md</code> and <code class="rf-mono">design/tokens.css</code>.</p>
+</section>
+
+<!-- ================= COLORS ================= -->
+<section class="ds-section" id="colors">
+  <header><h2 class="rf-h1">Colors</h2><p>Basalt neutrals carry the page, ocean blue marks what you can act on, lagoon supports it, ember is rare and marks what matters most. The interface is alive: a slow fluid ocean drifts behind frosted-glass chrome (top bar, sidebar, stats, modals), while tables and forms stay near-opaque so figures read perfectly.</p></header>
+  <div class="ds-caption">Brand</div>
+  <div class="ds-swatches" data-swatches="primary-top:Primary top (gradient)|primary:Primary · ocean|primary-soft:Primary soft (selected)|lagoon:Lagoon|lagoon-soft:Lagoon soft|accent:Accent · ember|accent-strong:Accent strong (text)|accent-soft:Accent soft"></div>
+  <div class="ds-caption">Neutrals · basalt</div>
+  <div class="ds-swatches" data-swatches="bg:Page background|surface:Surface|surface-subtle:Surface subtle|border:Border|border-strong:Border strong|text-subtle:Text subtle (placeholder)|text-muted:Text muted|text:Text"></div>
+  <div class="ds-caption">Status</div>
+  <div class="ds-swatches" data-swatches="success:Success|success-bg:Success background|warning:Warning|warning-bg:Warning background|danger:Danger|danger-bg:Danger background|info:Info|info-bg:Info background"></div>
+  <div class="ds-caption">Charts, in order</div>
+  <div class="ds-swatches" data-swatches="chart-1:Chart 1 · ocean|chart-2:Chart 2 · lagoon|chart-3:Chart 3 · sand|chart-4:Chart 4 · slate|chart-5:Chart 5 · sky|chart-highlight:Highlight · ember"></div>
+  <ul class="ds-rules">
+    <li><b>Ocean blue</b> = interactive: primary buttons, links, focus ring, selected nav and rows. <b>Lagoon</b> = info messages and chart series 3.</li>
+    <li><b>Glass</b> (<code class="rf-mono">.rf-glass</code>) only on chrome: top bar, sidebar, stats strip, modals, toasts, login. Never behind tables, forms or long text: those use <code class="rf-mono">--rf-surface-data</code> (94% opaque).</li>
+    <li><b>Fluid background</b> (<code class="rf-mono">.rf-fluid</code>): one per page, three ocean blobs (ocean, lagoon, deep), slow (38s), stops with reduced motion. No ember in the background: diluted, it turns pink and reads as an error.</li>
+    <li><b>Gradients</b> only through tokens: <code class="rf-mono">--rf-gradient-primary</code> (buttons, avatar, checked controls), <code class="rf-mono">--rf-gradient-ocean</code> (login and onboarding panels), <code class="rf-mono">--rf-gradient-page</code> (page top). Never blue-to-purple, never on text.</li>
+    <li><b>Ember</b> = the hero figure when nothing needs action, one highlight per chart (never a whole series), brand moments. Never for status, errors or buttons.</li>
+    <li><b>Ember as text</b> only at 20px or larger, or use <code class="rf-mono">--rf-accent-strong</code> (5:1 on white).</li>
+    <li><b>Status colors</b> always come with a word ("Fiscalized", "Failed"), never color alone.</li>
+  </ul>
+</section>
+
+<!-- ================= TYPE ================= -->
+<section class="ds-section" id="type">
+  <header><h2 class="rf-h1">Typography</h2><p>General Sans for headings and key figures (the forged voice). IBM Plex Sans for everything you read and operate. IBM Plex Mono for identifiers you might copy: TaxCore invoice numbers, certificate UIDs, request IDs.</p></header>
+  <div class="ds-type-row"><code>display · General Sans 600<br>40 / 1.15 · −0.02em</code><p class="rf-display">Fiscalize with confidence</p></div>
+  <div class="ds-type-row"><code>h1 · General Sans 600<br>28 / 1.2 · −0.01em</code><p class="rf-h1">Invoices</p></div>
+  <div class="ds-type-row"><code>h2 · General Sans 600<br>20 / 1.3 · −0.01em</code><p class="rf-h2">Xero connection</p></div>
+  <div class="ds-type-row"><code>h3 · Plex Sans 600<br>16 / 1.4</code><p class="rf-h3">Tax rate mapping</p></div>
+  <div class="ds-type-row"><code>body-lg · Plex Sans 400<br>16 / 1.6</code><p class="rf-body-lg" style="margin:0;max-width:62ch">Approved invoices in Xero are sent to TaxCore automatically. The verification QR code is added back to the invoice.</p></div>
+  <div class="ds-type-row"><code>body · Plex Sans 400<br>14 / 1.55 (default)</code><p class="rf-body" style="margin:0;max-width:68ch">Each Xero tax rate must match a TaxCore label. Unmatched rates block fiscalization until you map them.</p></div>
+  <div class="ds-type-row"><code>sm · Plex Sans 400/600<br>13 / 1.45 (tables, labels)</code><p class="rf-sm" style="margin:0">Port Vila Supplies · VT 148 500 · 3 attempts</p></div>
+  <div class="ds-type-row"><code>xs · Plex Sans 400/600<br>12 / 1.35 (captions, badges)</code><p class="rf-xs rf-muted" style="margin:0">Last synced 4 minutes ago</p></div>
+  <div class="ds-type-row"><code>kpi · General Sans 600<br>28 · tabular figures</code><p class="rf-stat__value" style="margin:0">VT 4 812 300</p></div>
+  <div class="ds-type-row"><code>mono · Plex Mono 400<br>0.92em of context</code><p style="margin:0"><span class="rf-mono">5VPJ3NC7-5VPJ3NC7-138</span></p></div>
+  <ul class="ds-rules">
+    <li><b>Amounts</b> always use tabular figures (<code class="rf-mono">font-variant-numeric: tabular-nums</code>) and are right-aligned in tables.</li>
+    <li><b>Currency</b>: "VT 23 000" (vatu, no decimals, thin grouping space).</li>
+    <li><b>Sentence case</b> everywhere: "Connect Xero", not "Connect XERO" or "Connect Xero Account".</li>
+    <li><b>Bislama</b> strings run up to ~30% longer than English: never fix a button or column width to the English text.</li>
+  </ul>
+</section>
+
+<!-- ================= SPACING ================= -->
+<section class="ds-section" id="space">
+  <header><h2 class="rf-h1">Spacing, radii, layout</h2><p>4px base. Comfortable-dense: dense enough for long invoice tables, never cramped.</p></header>
+  <div class="ds-grid ds-cols-2">
+    <div class="ds-grid" style="gap:10px">
+      <div class="ds-space"><i style="width:4px"></i>space-1 · 4</div>
+      <div class="ds-space"><i style="width:8px"></i>space-2 · 8</div>
+      <div class="ds-space"><i style="width:12px"></i>space-3 · 12</div>
+      <div class="ds-space"><i style="width:16px"></i>space-4 · 16</div>
+      <div class="ds-space"><i style="width:20px"></i>space-5 · 20</div>
+      <div class="ds-space"><i style="width:24px"></i>space-6 · 24</div>
+      <div class="ds-space"><i style="width:32px"></i>space-8 · 32</div>
+      <div class="ds-space"><i style="width:40px"></i>space-10 · 40</div>
+      <div class="ds-space"><i style="width:48px"></i>space-12 · 48</div>
+      <div class="ds-space"><i style="width:64px"></i>space-16 · 64</div>
+    </div>
+    <div>
+      <div class="ds-row">
+        <div class="ds-radius" style="border-radius:var(--rf-radius-sm)">sm · 4</div>
+        <div class="ds-radius" style="border-radius:var(--rf-radius-md)">md · 6</div>
+        <div class="ds-radius" style="border-radius:var(--rf-radius-lg)">lg · 10</div>
+        <div class="ds-radius" style="border-radius:var(--rf-radius-full);width:64px">full</div>
+      </div>
+      <ul class="ds-rules">
+        <li><b>sm</b> badges, checkboxes · <b>md</b> buttons, inputs, nav items · <b>lg</b> panels, tables, modals.</li>
+        <li><b>Inside a panel</b>: 20px padding. Between panels: 24px. Between page sections: 32px.</li>
+        <li><b>Shell</b>: sidebar 240px, top bar 56px, content max 1280px, gutter 24px (16px on mobile).</li>
+        <li><b>Depth</b>: panels and tables sit on <code class="rf-mono">--rf-shadow-sm</code>, menus on <code class="rf-mono">--rf-shadow-popover</code>, modals on <code class="rf-mono">--rf-shadow-modal</code>. Shadows are offset and blue-tinted, never a glow.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BUTTONS ================= -->
+<section class="ds-section" id="buttons">
+  <header><h2 class="rf-h1">Buttons</h2><p>One primary button per view: the main thing this screen is for. Labels start with a verb and name the outcome.</p></header>
+  <div class="ds-caption">Variants</div>
+  <div class="ds-row">
+    <button class="rf-btn rf-btn--primary"><i data-i="plus"></i>Register company</button>
+    <button class="rf-btn rf-btn--secondary"><i data-i="download"></i>Export CSV</button>
+    <button class="rf-btn rf-btn--ghost">Cancel</button>
+    <button class="rf-btn rf-btn--danger">Delete company</button>
+    <button class="rf-btn rf-btn--danger-ghost">Disconnect Xero</button>
+  </div>
+  <div class="ds-caption">Sizes · sm 32 · md 36 (default) · lg 44 (login, empty states)</div>
+  <div class="ds-row">
+    <button class="rf-btn rf-btn--primary rf-btn--sm">Retry</button>
+    <button class="rf-btn rf-btn--primary">Fiscalize invoice</button>
+    <button class="rf-btn rf-btn--primary rf-btn--lg">Sign in</button>
+    <button class="rf-btn rf-btn--secondary rf-icon-btn" aria-label="More actions"><i data-i="more"></i></button>
+    <button class="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" aria-label="Delete"><i data-i="trash"></i></button>
+  </div>
+  <div class="ds-caption">States</div>
+  <div class="ds-row">
+    <button class="rf-btn rf-btn--primary" aria-busy="true">Sending to TaxCore…</button>
+    <button class="rf-btn rf-btn--primary" aria-disabled="true">Upload certificate first</button>
+    <button class="rf-btn rf-btn--secondary" aria-disabled="true">Export CSV</button>
+  </div>
+  <ul class="ds-rules">
+    <li><b>Good labels</b>: "Fiscalize invoice", "Connect Xero", "Upload certificate", "Retry failed (3)". <b>Avoid</b>: "Submit", "OK", "Click here".</li>
+    <li><b>Destructive</b> actions use danger and always confirm in a modal that names what is lost.</li>
+    <li><b>Loading</b>: keep the button width, show the spinner, and say what is happening ("Sending to TaxCore…").</li>
+    <li><b>Disabled</b> buttons say why in their label or a tooltip. Prefer enabled + inline error when possible.</li>
+  </ul>
+</section>
+
+<!-- ================= FORMS ================= -->
+<section class="ds-section" id="forms">
+  <header><h2 class="rf-h1">Forms</h2><p>Label above the field, help below, error replaces help. One column. The primary action sits bottom left, aligned with the fields.</p></header>
+  <div class="ds-grid ds-cols-2">
+    <div class="rf-panel">
+      <div class="rf-panel__head"><h3 class="rf-h3">Company details</h3></div>
+      <div class="rf-panel__body ds-grid" style="gap:var(--rf-space-5)">
+        <div class="rf-field"><label class="rf-label" for="f1">Business name</label><input class="rf-input" id="f1" value="Tanna Coffee Co."></div>
+        <div class="rf-field"><label class="rf-label" for="f2">TIN <span class="rf-optional">(optional)</span></label><input class="rf-input" id="f2" placeholder="1234567"><span class="rf-help">Vanuatu tax identification number, as shown on your VAT certificate.</span></div>
+        <div class="rf-field"><label class="rf-label" for="f3">Contact email</label><input class="rf-input" id="f3" value="compta@tannacoffee" aria-invalid="true" aria-describedby="f3e"><span class="rf-error-text" id="f3e"><i data-i="alert"></i>Enter a full email address, like name@company.vu.</span></div>
+        <div class="rf-field"><label class="rf-label" for="f4">Certificate UID</label><input class="rf-input rf-input--mono" id="f4" value="5VPJ3NC7" disabled><span class="rf-help">Read from the uploaded certificate.</span></div>
+        <div class="ds-row"><button class="rf-btn rf-btn--primary">Save changes</button><button class="rf-btn rf-btn--ghost">Cancel</button></div>
+      </div>
+    </div>
+    <div class="rf-panel">
+      <div class="rf-panel__head"><h3 class="rf-h3">Xero fiscalization settings</h3><span class="rf-badge rf-badge--success">Connected</span></div>
+      <div class="rf-panel__body ds-grid" style="gap:var(--rf-space-5)">
+        <div class="rf-field"><label class="rf-label" for="g1">Payment type sent to TaxCore</label>
+          <select class="rf-select" id="g1"><option>Wire transfer</option><option>Cash</option><option>Card</option></select></div>
+        <div class="rf-field"><span class="rf-label">Tax rate mapping</span>
+          <div class="ds-grid" style="grid-template-columns:minmax(0,1fr) 150px;gap:var(--rf-space-2);align-items:center">
+            <span class="rf-sm">Output tax 15% <span class="rf-mono rf-muted">OUTPUT</span></span><select class="rf-select"><option>A · VAT 15%</option><option>B · Exempt</option></select>
+            <span class="rf-sm">Exempt output <span class="rf-mono rf-muted">EXEMPTOUTPUT</span></span><select class="rf-select"><option>B · Exempt</option><option>A · VAT 15%</option></select>
+          </div></div>
+        <label class="rf-switch"><input type="checkbox" checked>Fiscalize approved invoices automatically</label>
+        <fieldset style="border:0;padding:0;margin:0" class="ds-grid">
+          <legend class="rf-label" style="margin-bottom:8px">When TaxCore is unreachable</legend>
+          <label class="rf-check"><input type="radio" name="r" checked>Retry every 15 minutes</label>
+          <label class="rf-check"><input type="radio" name="r">Wait for a manual retry</label>
+        </fieldset>
+        <label class="rf-check"><input type="checkbox" checked>Email me when an invoice fails</label>
+        <div class="rf-field"><label class="rf-label" for="g2">Internal note <span class="rf-optional">(optional)</span></label><textarea class="rf-textarea" id="g2" placeholder="Accountant contact, special cases…"></textarea></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= STATUS ================= -->
+<section class="ds-section" id="status">
+  <header><h2 class="rf-h1">Status, badges, alerts</h2><p>Every domain state has exactly one badge. Same state, same color, same word, on every screen.</p></header>
+  <div class="rf-table-wrap">
+    <table class="rf-table">
+      <thead><tr><th>Object</th><th>States</th></tr></thead>
+      <tbody>
+        <tr><td>Invoice</td><td><div class="ds-row"><span class="rf-badge rf-badge--success">Fiscalized</span><span class="rf-badge rf-badge--warning">Pending</span><span class="rf-badge rf-badge--danger">Failed</span></div></td></tr>
+        <tr><td>Certificate</td><td><div class="ds-row"><span class="rf-badge rf-badge--success">Valid</span><span class="rf-badge rf-badge--warning">Expires in 21 days</span><span class="rf-badge rf-badge--danger">Revoked</span><span class="rf-badge rf-badge--neutral">Expired</span></div></td></tr>
+        <tr><td>Xero connection</td><td><div class="ds-row"><span class="rf-badge rf-badge--success">Connected</span><span class="rf-badge rf-badge--warning">Needs setup</span><span class="rf-badge rf-badge--neutral">Not connected</span></div></td></tr>
+        <tr><td>TaxCore environment</td><td><div class="ds-row"><span class="rf-badge rf-badge--sandbox rf-badge--plain">Sandbox</span><span class="rf-badge rf-badge--production rf-badge--plain">Production</span></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="ds-grid" style="margin-top:var(--rf-space-6)">
+    <div class="rf-alert rf-alert--info"><i data-i="info"></i><div><strong>Sandbox mode.</strong> Invoices go to the TaxCore test server and have no legal value.</div></div>
+    <div class="rf-alert rf-alert--success"><i data-i="check"></i><div><strong>Xero connected.</strong> 12 approved invoices from the last 7 days will be fiscalized now.</div></div>
+    <div class="rf-alert rf-alert--warning"><i data-i="alert"></i><div><strong>Certificate expires on 14 Nov 2026.</strong> Upload the renewed certificate before then or fiscalization stops. <a class="rf-link" href="#">Upload certificate</a></div></div>
+    <div class="rf-alert rf-alert--danger"><i data-i="x"></i><div><strong>3 invoices failed.</strong> TaxCore rejected the tax label "C". Map it in Xero settings, then retry. <a class="rf-link" href="#">Open Xero settings</a></div></div>
+  </div>
+  <ul class="ds-rules">
+    <li><b>Sandbox</b> is never subtle: amber badge in the top bar plus a striped line across the top of every page.</li>
+    <li><b>Error copy</b>: what happened, then what to do. Never show a raw TaxCore error code alone; put it in a details row.</li>
+  </ul>
+</section>
+
+<!-- ================= DATA ================= -->
+<section class="ds-section" id="data">
+  <header><h2 class="rf-h1">Stats, charts, tables</h2><p>Stats sit in one bordered strip, not floating cards. Tables are the core of the product: calm rows, right-aligned amounts, identifiers in mono. Example data below.</p></header>
+
+  <div class="ds-caption" style="margin-top:0">When something needs action: that cell wins, nothing else is colored</div>
+  <div class="rf-stats">
+    <div class="rf-stat rf-stat--action"><div class="rf-stat__label">Failed</div><div class="rf-stat__value rf-stat__value--danger">3</div><div class="rf-stat__delta"><a class="rf-link" href="#">Review and retry</a></div></div>
+    <div class="rf-stat"><div class="rf-stat__label">Pending</div><div class="rf-stat__value">17</div><div class="rf-stat__delta">Oldest 12 min ago</div></div>
+    <div class="rf-stat"><div class="rf-stat__label">Fiscalized this month</div><div class="rf-stat__value">1 284</div><div class="rf-stat__delta rf-stat__delta--up">+8% vs August</div></div>
+    <div class="rf-stat"><div class="rf-stat__label">Total amount</div><div class="rf-stat__value">VT 4 812 300</div><div class="rf-stat__delta">September 2026</div></div>
+  </div>
+  <div class="ds-caption">When all is clear: the hero figure takes the ember</div>
+  <div class="rf-stats">
+    <div class="rf-stat"><div class="rf-stat__label">Total amount</div><div class="rf-stat__value rf-stat__value--accent">VT 4 812 300</div><div class="rf-stat__delta">September 2026</div></div>
+    <div class="rf-stat"><div class="rf-stat__label">Fiscalized this month</div><div class="rf-stat__value">1 284</div><div class="rf-stat__delta rf-stat__delta--up">+8% vs August</div></div>
+    <div class="rf-stat"><div class="rf-stat__label">Pending</div><div class="rf-stat__value">0</div><div class="rf-stat__delta">All sent to TaxCore</div></div>
+    <div class="rf-stat"><div class="rf-stat__label">Failed</div><div class="rf-stat__value">0</div><div class="rf-stat__delta">Nothing to fix</div></div>
+  </div>
+
+  <div class="rf-panel" style="margin-top:var(--rf-space-6)">
+    <div class="rf-panel__head"><h3 class="rf-h3">Fiscalized invoices per day</h3>
+      <div class="ds-legend"><span style="--c:var(--rf-chart-1)">From Xero</span><span style="--c:var(--rf-chart-2)">From API / POS</span><span style="--c:var(--rf-chart-highlight)">Record day</span></div></div>
+    <div class="rf-panel__body"><svg class="ds-chart" id="chart" role="img" aria-label="Bar chart of fiscalized invoices per day over 14 days"></svg></div>
+  </div>
+
+  <div class="ds-caption" style="margin-top:var(--rf-space-8)">Table with toolbar</div>
+  <div class="ds-row" style="margin-bottom:var(--rf-space-3)">
+    <div style="position:relative;flex:1;min-width:220px;max-width:320px"><input class="rf-input" placeholder="Search reference or customer" style="padding-left:34px"><i data-i="search" style="position:absolute;left:10px;top:9px;color:var(--rf-text-subtle)"></i></div>
+    <select class="rf-select" style="width:auto"><option>All statuses</option><option>Fiscalized</option><option>Pending</option><option>Failed</option></select>
+    <select class="rf-select" style="width:auto"><option>Last 30 days</option><option>This month</option></select>
+    <span style="flex:1"></span>
+    <button class="rf-btn rf-btn--secondary"><i data-i="download"></i>Export CSV</button>
+    <button class="rf-btn rf-btn--primary" id="reforge-btn"><i data-i="refresh"></i>Retry failed (1)</button>
+  </div>
+  <div class="rf-table-wrap">
+    <table class="rf-table">
+      <thead><tr><th style="width:32px"><label class="rf-check"><input type="checkbox" aria-label="Select all"></label></th><th><button class="rf-th-sort" aria-sort="descending">Date <i data-i="sort"></i></button></th><th>Reference</th><th>Customer</th><th>TaxCore number</th><th>Status</th><th class="rf-col-num">Amount</th><th></th></tr></thead>
+      <tbody>
+        <tr><td><label class="rf-check"><input type="checkbox" aria-label="Select"></label></td><td>25 Sep, 10:15</td><td>POS1-2026-000123</td><td>Worth It Ltd</td><td class="rf-col-id">5VPJ3NC7-5VPJ3NC7-138</td><td><span class="rf-badge rf-badge--success">Fiscalized</span></td><td class="rf-col-num">VT 23 000</td><td><button class="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" aria-label="Actions"><i data-i="more"></i></button></td></tr>
+        <tr aria-selected="true"><td><label class="rf-check"><input type="checkbox" checked aria-label="Select"></label></td><td>25 Sep, 10:22</td><td>INV-0457</td><td>Port Vila Supplies</td><td class="rf-col-id">5VPJ3NC7-5VPJ3NC7-139</td><td><span class="rf-badge rf-badge--success">Fiscalized</span></td><td class="rf-col-num">VT 148 500</td><td><button class="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" aria-label="Actions"><i data-i="more"></i></button></td></tr>
+        <tr><td><label class="rf-check"><input type="checkbox" aria-label="Select"></label></td><td>25 Sep, 10:31</td><td>INV-0458</td><td>Santo Hardware</td><td class="rf-col-id">—</td><td><span class="rf-badge rf-badge--warning">Pending</span></td><td class="rf-col-num">VT 61 250</td><td><button class="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" aria-label="Actions"><i data-i="more"></i></button></td></tr>
+        <tr id="reforge-row"><td><label class="rf-check"><input type="checkbox" aria-label="Select"></label></td><td>25 Sep, 10:40</td><td>POS1-2026-000125</td><td>Tanna Coffee Co.</td><td class="rf-col-id" data-cell="num">—</td><td data-cell="status"><span class="rf-badge rf-badge--danger">Failed</span></td><td class="rf-col-num">VT 9 811</td><td><button class="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" aria-label="Actions"><i data-i="more"></i></button></td></tr>
+      </tbody>
+    </table>
+    <div class="rf-table-foot"><span>Showing 1–4 of 1 304</span><div class="ds-row"><button class="rf-btn rf-btn--secondary rf-btn--sm" aria-disabled="true">Previous</button><button class="rf-btn rf-btn--secondary rf-btn--sm">Next</button></div></div>
+  </div>
+  <p class="rf-xs rf-muted">Click "Retry failed" to see the reforge moment: the row turns to Fiscalized and briefly lights up blue.</p>
+
+  <div class="ds-grid ds-cols-2" style="margin-top:var(--rf-space-6)">
+    <div class="rf-table-wrap"><div class="rf-empty">
+      <p class="rf-empty__title">Connect Xero to start</p>
+      <p class="rf-empty__text">Once Xero is connected, every invoice you approve is fiscalized with TaxCore and listed here.</p>
+      <button class="rf-btn rf-btn--primary">Connect Xero</button>
+    </div></div>
+    <div class="rf-table-wrap">
+      <table class="rf-table" aria-busy="true">
+        <thead><tr><th>Reference</th><th>Customer</th><th class="rf-col-num">Amount</th></tr></thead>
+        <tbody>
+          <tr><td><span class="rf-skeleton" style="width:120px"></span></td><td><span class="rf-skeleton" style="width:140px"></span></td><td><span class="rf-skeleton" style="width:70px;margin-left:auto"></span></td></tr>
+          <tr><td><span class="rf-skeleton" style="width:100px"></span></td><td><span class="rf-skeleton" style="width:110px"></span></td><td><span class="rf-skeleton" style="width:60px;margin-left:auto"></span></td></tr>
+          <tr><td><span class="rf-skeleton" style="width:130px"></span></td><td><span class="rf-skeleton" style="width:90px"></span></td><td><span class="rf-skeleton" style="width:80px;margin-left:auto"></span></td></tr>
+          <tr><td><span class="rf-skeleton" style="width:110px"></span></td><td><span class="rf-skeleton" style="width:150px"></span></td><td><span class="rf-skeleton" style="width:55px;margin-left:auto"></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <ul class="ds-rules">
+    <li><b>Every table</b> has four states designed: loading (skeleton rows), empty (an invitation with one action), error (danger alert above the table with a retry), and long content (truncate with a tooltip, never wrap identifiers).</li>
+    <li><b>Row height</b> 44px, compact 36px for dense admin lists. Header 36px, 12px semibold, muted.</li>
+  </ul>
+</section>
+
+<!-- ================= SHELL ================= -->
+<section class="ds-section" id="shell">
+  <header><h2 class="rf-h1">App shell</h2><p>Same shell for every app in the hub. The sidebar names the hub and the current app. The top bar holds the company switcher (admins manage many companies), the TaxCore environment and the user.</p></header>
+  <div class="ds-frame">
+    <div class="rf-fluid rf-fluid--contained" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="rf-sandbox-strip rf-above-fluid"></div>
+    <div class="rf-shell rf-above-fluid">
+      <aside class="rf-sidebar" id="demo-sidebar" aria-label="Main navigation">
+        <div class="rf-sidebar__brand">Reeforge <span>Finance</span></div>
+        <a class="rf-nav-item" href="#"><i data-i="dashboard"></i>Overview</a>
+        <a class="rf-nav-item" href="#" aria-current="page"><i data-i="file"></i>Invoices<span class="rf-count">3</span></a>
+        <a class="rf-nav-item" href="#"><i data-i="building"></i>Companies</a>
+        <a class="rf-nav-item" href="#"><i data-i="key"></i>Certificates</a>
+        <a class="rf-nav-item" href="#"><i data-i="refresh"></i>Xero</a>
+        <div class="rf-sidebar__section">Account</div>
+        <a class="rf-nav-item" href="#"><i data-i="sliders"></i>Settings</a>
+        <span style="flex:1"></span>
+        <a class="rf-nav-item" href="#"><i data-i="grid"></i>All Reeforge apps</a>
+      </aside>
+      <div class="rf-drawer-backdrop" data-drawer-close></div>
+      <div>
+        <div class="rf-topbar">
+          <div class="rf-topbar__start">
+            <button class="rf-btn rf-btn--ghost rf-icon-btn rf-menu-btn" aria-label="Open menu" aria-controls="demo-sidebar" aria-expanded="false" data-drawer-open><i data-i="menu"></i></button>
+            <button class="rf-company-switcher" aria-label="Switch company"><span class="rf-avatar rf-avatar--company">TC</span><span style="min-width:0"><span class="rf-company-switcher__name">Tanna Coffee Co.</span><span class="rf-company-switcher__meta">Certificate 5VPJ3NC7</span></span><i data-i="chevron"></i></button>
+          </div>
+          <div class="rf-topbar__end">
+            <span class="rf-badge rf-badge--sandbox rf-badge--plain">Sandbox</span>
+            <div class="rf-lang rf-hide-mobile" role="group" aria-label="Language"><button aria-pressed="true">EN</button><button>BI</button></div>
+            <button class="rf-btn rf-btn--ghost rf-icon-btn rf-hide-mobile" aria-label="Search"><i data-i="search"></i></button>
+            <span class="rf-avatar" title="Raquel M. (you)">RM</span>
+          </div>
+        </div>
+        <main class="rf-main">
+          <div class="rf-page-head">
+            <div><h1 class="rf-h1">Invoices</h1><p>Every invoice sent to TaxCore for Tanna Coffee Co.</p></div>
+            <div class="ds-row"><button class="rf-btn rf-btn--secondary"><i data-i="download"></i>Export CSV</button><button class="rf-btn rf-btn--secondary"><i data-i="plus"></i>Fiscalize manually</button><button class="rf-btn rf-btn--primary"><i data-i="refresh"></i>Retry failed (3)</button></div>
+          </div>
+          <div class="rf-tabs" role="tablist"><a class="rf-tab" aria-selected="true" href="#">All</a><a class="rf-tab" href="#">Failed</a><a class="rf-tab" href="#">Pending Xero documents</a></div>
+          <div class="rf-alert rf-alert--danger" style="margin-bottom:var(--rf-space-5)"><i data-i="x"></i><div><strong>3 invoices failed.</strong> TaxCore rejected the tax label "C". <a class="rf-link" href="#">Fix mapping</a></div></div>
+          <div class="rf-table-wrap"><table class="rf-table"><thead><tr><th>Date</th><th>Reference</th><th>Customer</th><th>Status</th><th class="rf-col-num">Amount</th></tr></thead><tbody>
+            <tr><td>25 Sep, 10:15</td><td>POS1-2026-000123</td><td>Worth It Ltd</td><td><span class="rf-badge rf-badge--success">Fiscalized</span></td><td class="rf-col-num">VT 23 000</td></tr>
+            <tr><td>25 Sep, 10:31</td><td>INV-0458</td><td>Santo Hardware</td><td><span class="rf-badge rf-badge--warning">Pending</span></td><td class="rf-col-num">VT 61 250</td></tr>
+            <tr><td>25 Sep, 10:40</td><td>POS1-2026-000125</td><td>Tanna Coffee Co.</td><td><span class="rf-badge rf-badge--danger">Failed</span></td><td class="rf-col-num">VT 9 811</td></tr>
+          </tbody></table></div>
+        </main>
+      </div>
+    </div>
+  </div>
+  <ul class="ds-rules">
+    <li><b>Page header</b>: h1 + one-line description on the left, actions on the right (secondary first, primary last). The primary action follows the situation: here "Retry failed (3)" because invoices failed; with no failure there is no primary button (invoices are fiscalized automatically from Xero).</li>
+    <li><b>One signal per problem level</b>: the red count in the nav says where, the alert says what to do. Tabs are plain filters, no repeated counts.</li>
+    <li><b>Mobile</b> (under 900px): a menu button opens the sidebar as a drawer (Esc or a tap outside closes it); the language switcher moves to the user menu; tables scroll horizontally inside their frame.</li>
+    <li><b>Company vs user</b>: the company is a neutral square, the user a blue circle.</li>
+  </ul>
+</section>
+
+<!-- ================= LOGIN ================= -->
+<section class="ds-section" id="login">
+  <header><h2 class="rf-h1">Login</h2><p>The one screen where the brand speaks a little louder. The form stays plain; the basalt side shows what the product actually produces.</p></header>
+  <div class="ds-frame">
+    <div class="ds-login">
+      <div class="ds-login__form">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:var(--rf-space-6)"><div class="rf-sidebar__brand" style="padding:0">Reeforge <span>Finance</span></div><div class="rf-lang" role="group" aria-label="Language"><button aria-pressed="true">English</button><button>Bislama</button></div></div>
+        <h1 class="rf-h1">Sign in</h1>
+        <p class="rf-muted" style="margin:0">Fiscalize your Xero invoices with TaxCore.</p>
+        <div class="rf-field"><label class="rf-label" for="l1">Email</label><input class="rf-input" id="l1" type="email" placeholder="name@company.vu" style="height:var(--rf-control-lg)"></div>
+        <div class="rf-field"><div style="display:flex;justify-content:space-between"><label class="rf-label" for="l2">Password</label><a class="rf-link rf-sm" href="#">Forgot password?</a></div><input class="rf-input" id="l2" type="password" style="height:var(--rf-control-lg)"></div>
+        <button class="rf-btn rf-btn--primary rf-btn--lg rf-btn--block">Sign in</button>
+        <p class="rf-xs rf-muted" style="margin:0">Trouble signing in? Contact your Reeforge administrator.</p>
+      </div>
+      <div class="ds-login__side">
+        <div class="rf-fluid rf-fluid--contained" aria-hidden="true"><span></span><span></span><span></span></div>
+        <p class="rf-h2">Every approved invoice, fiscalized and verifiable.</p>
+        <div class="ds-receipt">
+          <div><span>Invoice</span><span class="rf-mono">5VPJ3NC7-5VPJ3NC7-138</span></div>
+          <div><span>Signed</span><span>25 Sep 2026, 10:15</span></div>
+          <div><span>Total</span><span class="rf-num">VT 23 000</span></div>
+          <div><span>Status</span><span style="color:#5CCB7A;font-weight:600">Fiscalized</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= OVERLAYS ================= -->
+<section class="ds-section" id="overlays">
+  <header><h2 class="rf-h1">Modals and toasts</h2><p>Modals only for confirmations and short focused tasks. Everything else happens inline or on a page.</p></header>
+  <div class="ds-grid ds-cols-2">
+    <div class="rf-overlay" style="border-radius:var(--rf-radius-lg);padding:var(--rf-space-10) var(--rf-space-6);display:grid;place-items:center">
+      <div class="rf-modal" role="dialog" aria-labelledby="m1">
+        <div class="rf-modal__head"><h2 class="rf-h2" id="m1">Delete Tanna Coffee Co.?</h2></div>
+        <div class="rf-modal__body">Its certificate, Xero connection and 1 304 invoice records will be permanently deleted. Fiscalized invoices stay valid at TaxCore.</div>
+        <div class="rf-modal__foot"><button class="rf-btn rf-btn--secondary">Cancel</button><button class="rf-btn rf-btn--danger">Delete company</button></div>
+      </div>
+    </div>
+    <div class="ds-grid" style="align-content:center;justify-items:start">
+      <div class="rf-toast"><i data-i="check"></i>Invoice POS1-2026-000125 fiscalized</div>
+      <div class="rf-toast"><i data-i="check"></i>Certificate uploaded · valid until 13 Jul 2029</div>
+      <ul class="ds-rules"><li><b>Toasts</b> confirm a finished action in past tense, disappear after 5s, and never carry errors (errors stay on the page).</li></ul>
+    </div>
+  </div>
+</section>
+
+<section class="ds-section">
+  <header><h2 class="rf-h1">Do and don't</h2></header>
+  <div class="ds-do-dont">
+    <div class="rf-panel rf-panel__body"><h3 class="rf-h3">Do</h3><ul>
+      <li>Use only <code class="rf-mono">--rf-*</code> tokens; never a raw hex in a page.</li>
+      <li>Show the TaxCore environment on every screen.</li>
+      <li>Right-align amounts with tabular figures; identifiers in mono.</li>
+      <li>Design loading, empty, error and long-content states with the happy path.</li>
+      <li>Write labels as verb + object, in sentence case.</li>
+    </ul></div>
+    <div class="rf-panel rf-panel__body"><h3 class="rf-h3">Don't</h3><ul>
+      <li>Use ember for a button, a status or an error.</li>
+      <li>Put a panel inside a panel.</li>
+      <li>Use colored left borders on cards or alerts.</li>
+      <li>Invent gradients outside the tokens, add glows, or put tables and forms on see-through glass.</li>
+      <li>Rely on color alone to convey a status.</li>
+    </ul></div>
+  </div>
+</section>
+
+</div>
+
+<script>
+const ICONS = {
+  plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
+  download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+  alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  check: '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+  x: '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
+  chevron: '<path d="m6 9 6 6 6-6"/>',
+  more: '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+  trash: '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
+  sort: '<path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/>',
+  refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+  dashboard: '<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>',
+  file: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+  building: '<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>',
+  key: '<path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/>',
+  sliders: '<line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/>',
+  menu: '<line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="18" y2="18"/>',
+  grid: '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>'
+};
+document.querySelectorAll("i[data-i]").forEach(el => {
+  const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("fill", "none"); s.setAttribute("stroke", "currentColor");
+  s.setAttribute("stroke-width", "1.75"); s.setAttribute("stroke-linecap", "round"); s.setAttribute("stroke-linejoin", "round");
+  s.setAttribute("aria-hidden", "true"); s.setAttribute("width", "16"); s.setAttribute("height", "16");
+  s.innerHTML = ICONS[el.dataset.i] || ""; s.style.cssText = el.getAttribute("style") || ""; el.replaceWith(s);
+});
+
+function renderSwatches() {
+  const cs = getComputedStyle(document.documentElement);
+  document.querySelectorAll("[data-swatches]").forEach(box => {
+    box.innerHTML = box.dataset.swatches.split("|").map(p => {
+      const [k, label] = p.split(":"); const v = cs.getPropertyValue("--rf-" + k).trim();
+      return `<div class="ds-swatch"><b style="background:var(--rf-${k})"></b><div>${label}<code>--rf-${k}</code><code>${v}</code></div></div>`;
+    }).join("");
+  });
+}
+
+function renderChart() {
+  const svg = document.getElementById("chart"); const W = svg.clientWidth || 800, H = 220, pad = { l: 36, r: 8, t: 8, b: 24 };
+  const xero = [38, 42, 35, 51, 47, 12, 8, 44, 49, 53, 46, 58, 14, 9], api = [12, 15, 11, 18, 16, 22, 19, 13, 17, 14, 18, 20, 25, 21];
+  const days = xero.map((_, i) => 12 + i), max = 80, bw = (W - pad.l - pad.r) / xero.length;
+  const y = v => pad.t + 24 + (H - pad.t - 24 - pad.b) * (1 - v / max);
+  let g = "";
+  [0, 20, 40, 60, 80].forEach(t => { g += `<line x1="${pad.l}" x2="${W - pad.r}" y1="${y(t)}" y2="${y(t)}" stroke="var(--rf-border)"/><text x="${pad.l - 8}" y="${y(t) + 4}" text-anchor="end" font-size="11" fill="var(--rf-text-muted)" font-family="var(--rf-font-sans)">${t}</text>`; });
+  xero.forEach((v, i) => {
+    const x = pad.l + i * bw + bw * 0.2, w = bw * 0.6;
+    g += `<rect x="${x}" y="${y(v + api[i])}" width="${w}" height="${y(v) - y(v + api[i]) - 1}" fill="var(--rf-chart-2)" rx="2"><title>${api[i]} from API / POS</title></rect>`;
+    if (v + api[i] === Math.max(...xero.map((x, j) => x + api[j]))) g += `<circle cx="${x + w / 2}" cy="${y(v + api[i]) - 10}" r="4" fill="var(--rf-chart-highlight)"/><text x="${x + w / 2}" y="${y(v + api[i]) - 20}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--rf-accent-strong)" font-family="var(--rf-font-sans)">Record · ${v + api[i]}</text>`;
+    g += `<rect x="${x}" y="${y(v)}" width="${w}" height="${y(0) - y(v)}" fill="var(--rf-chart-1)" rx="2"><title>${v} from Xero</title></rect>`;
+    if (i % 2 === 0) g += `<text x="${x + w / 2}" y="${H - 6}" text-anchor="middle" font-size="11" fill="var(--rf-text-muted)" font-family="var(--rf-font-sans)">${days[i]} Sep</text>`;
+  });
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.innerHTML = g;
+}
+
+document.querySelectorAll("[data-theme-set]").forEach(b => b.addEventListener("click", () => {
+  const t = b.dataset.themeSet;
+  if (t === "system") document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", t);
+  document.querySelectorAll("[data-theme-set]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  renderSwatches();
+}));
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderSwatches);
+
+document.getElementById("reforge-btn").addEventListener("click", () => {
+  const row = document.getElementById("reforge-row");
+  row.querySelector('[data-cell="status"]').innerHTML = '<span class="rf-badge rf-badge--success">Fiscalized</span>';
+  row.querySelector('[data-cell="num"]').textContent = "5VPJ3NC7-5VPJ3NC7-140";
+  row.classList.remove("rf-row-reforged"); void row.offsetWidth; row.classList.add("rf-row-reforged");
+});
+
+// Mobile drawer
+const drawer = document.getElementById("demo-sidebar"), opener = document.querySelector("[data-drawer-open]");
+const setDrawer = open => { drawer.dataset.open = String(open); opener.setAttribute("aria-expanded", String(open)); };
+opener.addEventListener("click", () => setDrawer(true));
+document.querySelector("[data-drawer-close]").addEventListener("click", () => setDrawer(false));
+addEventListener("keydown", e => { if (e.key === "Escape") setDrawer(false); });
+
+// Language switchers (visual only in the preview)
+document.querySelectorAll(".rf-lang").forEach(g => g.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+  g.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+})));
+
+// Pseudo-localization: every string in the product mockups gets ~35% longer
+const ACC = { a: "á", e: "é", i: "í", o: "ó", u: "ú", A: "Á", E: "É", I: "Í", O: "Ó", U: "Ú", c: "ç", n: "ñ" };
+const scopes = () => document.querySelectorAll(".rf-shell, .ds-login__form, #buttons .ds-row, #forms .rf-panel, #data .rf-stats, #data .rf-table-wrap, #overlays .rf-modal, #overlays .rf-toast");
+const originals = new Map();
+document.getElementById("pseudo-btn").addEventListener("click", e => {
+  const on = e.currentTarget.getAttribute("aria-pressed") !== "true";
+  e.currentTarget.setAttribute("aria-pressed", String(on));
+  scopes().forEach(root => {
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => n.nodeValue.trim().length > 1 && !n.parentElement.closest("svg,.rf-mono,.rf-col-id,.rf-col-num,.rf-stat__value,script,style") ? 1 : 2 });
+    const nodes = []; while (w.nextNode()) nodes.push(w.currentNode);
+    nodes.forEach(n => {
+      if (on) { originals.set(n, n.nodeValue); const t = n.nodeValue.replace(/[aeiouAEIOUcn]/g, ch => ACC[ch]); n.nodeValue = t.replace(/(\S)(\s*)$/, (m, a, b) => a + "·".repeat(Math.max(2, Math.round(t.trim().length * 0.35))) + b); }
+      else if (originals.has(n)) n.nodeValue = originals.get(n);
+    });
+  });
+});
+
+renderSwatches(); renderChart(); addEventListener("resize", renderChart);
+</script>
+</body>
+</html>

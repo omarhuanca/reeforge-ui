@@ -1,0 +1,8 @@
+/*
+ * Reeforge fonts. CDN loading for prototypes and previews.
+ * Production: self-host the WOFF2 files (faster, no third-party request).
+ *   General Sans: Fontshare, ITF Free Font License (free for commercial use)
+ *   IBM Plex Sans / Plex Mono: Google Fonts, SIL Open Font License
+ */
+@import url("https://api.fontshare.com/v2/css?f[]=general-sans@500,600,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap");
