@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../authContext'
+import { ThemeToggle } from './ThemeToggle'
 
 const ENV = (import.meta.env.VITE_TAXCORE_ENV as string | undefined) ?? 'Sandbox'
 
@@ -25,6 +26,7 @@ export function Layout({ children }: { children: ReactNode }) {
             <div className="rf-topbar__start" />
             <div className="rf-topbar__end">
               <span className={`rf-badge ${sandbox ? 'rf-badge--sandbox' : 'rf-badge--production'}`}>{ENV}</span>
+              <ThemeToggle />
               <button className="rf-btn rf-btn--ghost rf-btn--sm" onClick={signOut}>
                 Sign out
               </button>
