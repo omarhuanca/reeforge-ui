@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useXero, useXeroDisconnect, useXeroLink, useXeroPending, useXeroSettings } from '../api/hooks'
 import { ApiError } from '../api/client'
 import { XERO_PAYMENT_TYPES, type XeroConnection } from '../api/types'
@@ -40,24 +40,8 @@ function NotConnected({ companyId }: { companyId: number }) {
 
 function Connected({ companyId, conn }: { companyId: number; conn: XeroConnection }) {
   const pending = useXeroPending(companyId, true)
-  const save = useXeroSettings(companyId)
   const disconnect = useXeroDisconnect(companyId)
-  const [labels, setLabels] = useState(stringifyTaxLabels(conn.tax_labels))
-  const [payment, setPayment] = useState(conn.payment_type ?? 'Other')
   const [confirm, setConfirm] = useState(false)
-  const [saved, setSaved] = useState(false)
-
-  useEffect(() => {
-    setLabels(stringifyTaxLabels(conn.tax_labels))
-    setPayment(conn.payment_type ?? 'Other')
-  }, [conn])
-
-  function submit(e: FormEvent) {
-    e.preventDefault()
-    setSaved(false)
-    save.mutate({ tax_labels: parseTaxLabels(labels), payment_type: payment }, { onSuccess: () => setSaved(true) })
-  }
-  const errs = save.error instanceof ApiError ? Object.values(save.error.errors).flat() : []
 
   return (
     <div className="stack">
@@ -70,20 +54,7 @@ function Connected({ companyId, conn }: { companyId: number; conn: XeroConnectio
         <div><button className="rf-btn rf-btn--danger-ghost rf-btn--sm" onClick={() => setConfirm(true)}>Disconnect Xero</button></div>
       </div>
 
-      <form className="rf-panel rf-panel__body form" onSubmit={submit}>
-        <h2 style={{ margin: 0 }}>Invoice mapping</h2>
-        <Field label="Tax labels" help="One per line: Xero tax type = TaxCore label, e.g. OUTPUT=A">
-          <textarea className="rf-textarea rf-input--mono" rows={5} value={labels} onChange={(e) => setLabels(e.target.value)} spellCheck={false} />
-        </Field>
-        <Field label="Payment type for unpaid invoices">
-          <select className="rf-select" value={payment} onChange={(e) => setPayment(e.target.value)}>
-            {XERO_PAYMENT_TYPES.map((p) => <option key={p}>{p}</option>)}
-          </select>
-        </Field>
-        {errs.map((m) => <div key={m} className="rf-alert rf-alert--danger">{m}</div>)}
-        {saved && <div className="rf-alert rf-alert--success">Settings saved.</div>}
-        <div><button className="rf-btn rf-btn--primary" disabled={save.isPending} aria-busy={save.isPending}>{save.isPending ? 'Saving…' : 'Save settings'}</button></div>
-      </form>
+      <MappingForm key={JSON.stringify([conn.tax_labels, conn.payment_type])} companyId={companyId} conn={conn} />
 
       <div className="stack" style={{ gap: 8 }}>
         <h2 style={{ margin: 0 }}>Waiting on Xero documents</h2>
@@ -127,5 +98,36 @@ function Connected({ companyId, conn }: { companyId: number; conn: XeroConnectio
         </Modal>
       )}
     </div>
+  )
+}
+
+function MappingForm({ companyId, conn }: { companyId: number; conn: XeroConnection }) {
+  const save = useXeroSettings(companyId)
+  const [labels, setLabels] = useState(stringifyTaxLabels(conn.tax_labels))
+  const [payment, setPayment] = useState(conn.payment_type ?? 'Other')
+  const [saved, setSaved] = useState(false)
+
+  function submit(e: FormEvent) {
+    e.preventDefault()
+    setSaved(false)
+    save.mutate({ tax_labels: parseTaxLabels(labels), payment_type: payment }, { onSuccess: () => setSaved(true) })
+  }
+  const errs = save.error instanceof ApiError ? Object.values(save.error.errors).flat() : []
+
+  return (
+    <form className="rf-panel rf-panel__body form" onSubmit={submit}>
+      <h2 style={{ margin: 0 }}>Invoice mapping</h2>
+      <Field label="Tax labels" help="One per line: Xero tax type = TaxCore label, e.g. OUTPUT=A">
+        <textarea className="rf-textarea rf-input--mono" rows={5} value={labels} onChange={(e) => setLabels(e.target.value)} spellCheck={false} />
+      </Field>
+      <Field label="Payment type for unpaid invoices">
+        <select className="rf-select" value={payment} onChange={(e) => setPayment(e.target.value)}>
+          {XERO_PAYMENT_TYPES.map((p) => <option key={p}>{p}</option>)}
+        </select>
+      </Field>
+      {errs.map((m) => <div key={m} className="rf-alert rf-alert--danger">{m}</div>)}
+      {saved && <div className="rf-alert rf-alert--success">Settings saved.</div>}
+      <div><button className="rf-btn rf-btn--primary" disabled={save.isPending} aria-busy={save.isPending}>{save.isPending ? 'Saving…' : 'Save settings'}</button></div>
+    </form>
   )
 }
