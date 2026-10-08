@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
-import { useCompany } from '../api/hooks'
+import { useCompany, useXeroPending } from '../api/hooks'
 import { Badge, ErrorAlert, Skeleton } from '../components/ui'
-import { formatDate } from '../format'
+import { formatDate, pendingHeadline } from '../format'
 import { CompanyForm } from './CompaniesPage'
 import { InvoicesTab } from './InvoicesTab'
 import { CertificatesTab } from './CertificatesTab'
@@ -16,6 +16,7 @@ const LABEL: Record<Tab, string> = { invoices: 'Invoices', certificates: 'Certif
 export function CompanyPage() {
   const id = Number(useParams().id)
   const q = useCompany(id)
+  const pendingCount = useXeroPending(id, true).data?.length ?? 0
   const params = useSearchParams()[0]
   const requested = params.get('tab')
   const [tab, setTab] = useState<Tab>(TABS.find((t) => t === requested) ?? (params.get('upload') ? 'certificates' : 'invoices'))
@@ -60,10 +61,27 @@ export function CompanyPage() {
         </div>
       )}
 
+      {pendingCount > 0 && tab !== 'xero' && (
+        <div className="rf-alert rf-alert--warning" role="status">
+          <div>
+            <strong>{pendingHeadline(pendingCount)}</strong> They are not fiscalized until the cause is fixed.{' '}
+            <button type="button" className="rf-link" onClick={() => setTab('xero')}>Review pending documents</button>
+          </div>
+        </div>
+      )}
+
       <div className="rf-tabs" role="tablist">
         {TABS.map((t) => (
-          <button key={t} role="tab" aria-selected={tab === t} className="rf-tab" onClick={() => setTab(t)}>
+          <button
+            key={t}
+            role="tab"
+            aria-selected={tab === t}
+            aria-label={t === 'xero' && pendingCount > 0 ? `Xero, ${pendingCount} pending` : undefined}
+            className="rf-tab"
+            onClick={() => setTab(t)}
+          >
             {LABEL[t]}
+            {t === 'xero' && pendingCount > 0 && <span className="rf-tab__count" aria-hidden="true">{pendingCount}</span>}
           </button>
         ))}
       </div>

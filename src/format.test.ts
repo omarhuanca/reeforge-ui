@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { daysUntil, formatBytes, formatVT, parseTaxLabels, stringifyTaxLabels } from './format'
+import { daysUntil, formatBytes, formatVT, parseTaxLabels, pendingHeadline, stringifyTaxLabels } from './format'
 
 describe('format', () => {
   it('formats vatu with space thousands and no decimals', () => {
@@ -25,5 +25,10 @@ describe('format', () => {
     expect(formatBytes(2048)).toBe('2.0 KB')
     expect(formatBytes(48 * 1024)).toBe('48 KB')
     expect(formatBytes(1.5 * 1024 * 1024)).toBe('1.5 MB')
+  })
+
+  it('words the pending Xero documents headline', () => {
+    expect(pendingHeadline(1)).toBe('1 Xero document is waiting.')
+    expect(pendingHeadline(3)).toBe('3 Xero documents are waiting.')
   })
 })
