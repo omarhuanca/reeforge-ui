@@ -128,7 +128,15 @@ export const useXeroPending = (companyId: number, enabled: boolean) =>
   useQuery({
     queryKey: ['xero-pending', companyId],
     enabled,
-    queryFn: () => api<{ data: XeroPending[] }>(`/companies/${companyId}/xero/pending`).then((r) => r.data),
+    retry: false,
+    queryFn: async () => {
+      try {
+        return (await api<{ data: XeroPending[] }>(`/companies/${companyId}/xero/pending`)).data
+      } catch (e) {
+        if (e instanceof ApiError && e.status === 404) return [] // no Xero connection: nothing can be waiting
+        throw e
+      }
+    },
   })
 
 export const useXeroLink = (companyId: number) =>

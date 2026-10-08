@@ -33,3 +33,7 @@ a.rf-btn { text-decoration: none; }
 
 .toast-fixed { position: fixed; right: 24px; bottom: 24px; z-index: 60; }
 
+
+/* Red count next to a tab label (a problem shows once where you navigate). */
+.rf-tab__count { margin-left: 6px; font-size: var(--rf-text-xs); font-weight: 600; color: var(--rf-danger); font-variant-numeric: tabular-nums; }
+button.rf-link { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; text-decoration: underline; }

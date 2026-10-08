@@ -37,3 +37,8 @@ export function formatBytes(bytes: number): string {
   if (kb < 1024) return `${kb < 10 ? kb.toFixed(1) : Math.round(kb)} KB`
   return `${(kb / 1024).toFixed(1)} MB`
 }
+
+/** "1 Xero document is waiting" / "3 Xero documents are waiting". */
+export function pendingHeadline(count: number): string {
+  return count === 1 ? '1 Xero document is waiting.' : `${count} Xero documents are waiting.`
+}
