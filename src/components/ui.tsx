@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, useId, useRef, type ReactNode } from 'react'
 import { errorMessage } from '../api/client'
 
 export const Badge = ({ cls, children }: { cls: string; children: ReactNode }) => (
@@ -18,8 +18,8 @@ export const ErrorAlert = ({ error, onRetry }: { error: unknown; onRetry?: () =>
   </div>
 )
 
-export const Empty = ({ title, text, action }: { title: string; text: string; action?: ReactNode }) => (
-  <div className="rf-empty">
+export const Empty = ({ title, text, action, compact }: { title: string; text: string; action?: ReactNode; compact?: boolean }) => (
+  <div className={`rf-empty${compact ? ' rf-empty--compact' : ''}`}>
     <div className="rf-empty__title">{title}</div>
     <div className="rf-empty__text">{text}</div>
     {action}
@@ -45,16 +45,32 @@ export function Modal({
   children: ReactNode
   foot?: ReactNode
 }) {
+  // Native <dialog> opened with showModal(): focus trap, Esc and ::backdrop come from the browser.
+  const ref = useRef<HTMLDialogElement>(null)
+  const titleId = useId()
+
+  useEffect(() => {
+    const dialog = ref.current
+    if (dialog && !dialog.open) dialog.showModal()
+  }, [])
+
   return (
-    <div className="rf-overlay" onClick={onClose}>
-      <div className="rf-modal rf-glass--strong" role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
-        <div className="rf-modal__head">
-          <h2 style={{ margin: 0 }}>{title}</h2>
-        </div>
-        <div className="rf-modal__body">{children}</div>
-        {foot && <div className="rf-modal__foot">{foot}</div>}
+    <dialog
+      ref={ref}
+      className="rf-modal"
+      aria-labelledby={titleId}
+      onClose={onClose}
+      onClick={(e) => {
+        // A click on the backdrop lands on the <dialog> element itself.
+        if (e.target === ref.current) onClose()
+      }}
+    >
+      <div className="rf-modal__head">
+        <h2 id={titleId} style={{ margin: 0 }}>{title}</h2>
       </div>
-    </div>
+      <div className="rf-modal__body">{children}</div>
+      {foot && <div className="rf-modal__foot">{foot}</div>}
+    </dialog>
   )
 }
 

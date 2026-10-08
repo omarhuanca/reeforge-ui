@@ -12,3 +12,28 @@ h1, h2 { font-family: 'General Sans', 'IBM Plex Sans', sans-serif; }
 .trunc { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 pre.journal { white-space: pre-wrap; font-family: 'IBM Plex Mono', monospace; font-size: 12px; background: var(--rf-surface-subtle); padding: 12px; border-radius: 8px; overflow: auto; max-height: 280px; }
 .rf-sidebar a.rf-nav-item { text-decoration: none; }
+
+/* Tabs: 14px, only the active underline (no button borders or separators). */
+button.rf-tab { background: none; border: 0; border-bottom: 2px solid transparent; font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; }
+button.rf-tab[aria-selected="true"] { border-bottom-color: var(--rf-primary); }
+.rf-tabs { margin-bottom: 0; }
+
+/* Alert with an action: text grows, button sits at the right, centered vertically. */
+.rf-alert--action { align-items: center; }
+.rf-alert__body { flex: 1; min-width: 0; }
+
+/* Tab empty state: short, with less vertical space. */
+.rf-empty--compact { padding: var(--rf-space-6); }
+.rf-empty--compact .rf-empty__text { margin-bottom: var(--rf-space-4); }
+
+a.rf-btn { text-decoration: none; }
+
+.toast-fixed { position: fixed; right: 24px; bottom: 24px; z-index: 60; }
+
+/* User menu popover in the top bar. */
+.user-menu { position: relative; }
+.user-menu__trigger { border: 0; cursor: pointer; }
+.user-menu__panel { position: absolute; right: 0; top: calc(100% + 8px); min-width: 200px; padding: 8px; background: var(--rf-surface); border: 1px solid var(--rf-border); border-radius: var(--rf-radius-md); box-shadow: var(--rf-shadow-popover); z-index: 20; display: flex; flex-direction: column; gap: 2px; }
+.user-menu__who { padding: 6px 8px 8px; color: var(--rf-text-muted); border-bottom: 1px solid var(--rf-border); margin-bottom: 4px; }
+.user-menu__item { text-align: left; background: none; border: 0; color: var(--rf-text); font: inherit; padding: 8px; border-radius: var(--rf-radius-sm); cursor: pointer; }
+.user-menu__item:hover, .user-menu__item:focus-visible { background: var(--rf-surface-subtle); }

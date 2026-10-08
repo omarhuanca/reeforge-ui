@@ -136,7 +136,7 @@
 .rf-alert--danger { background: var(--rf-danger-bg); border-color: var(--rf-danger-border); }
 .rf-alert--danger svg { color: var(--rf-danger); }
 .rf-ocean { background: var(--rf-gradient-ocean); color: #E6EDF3; }
-.rf-sandbox-strip { height: 3px; background: repeating-linear-gradient(-45deg, var(--rf-warning) 0 8px, transparent 8px 16px); }
+.rf-sandbox-strip { height: 2px; background: var(--rf-sandbox-line); }
 
 /* ---------- Panels (the only container; never nest) ---------- */
 .rf-panel { background: var(--rf-surface-data); border: 1px solid var(--rf-border); border-radius: var(--rf-radius-lg); box-shadow: var(--rf-shadow-sm); }
@@ -224,7 +224,17 @@
 .rf-modal__head { padding: var(--rf-space-5) var(--rf-space-6) 0; }
 .rf-modal__body { padding: var(--rf-space-3) var(--rf-space-6) var(--rf-space-5); color: var(--rf-text-muted); }
 .rf-modal__foot { display: flex; justify-content: flex-end; gap: var(--rf-space-2); padding: var(--rf-space-4) var(--rf-space-6); border-top: 1px solid var(--rf-border); }
-.rf-overlay { background: rgba(7, 29, 48, 0.45); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.rf-modal { max-height: calc(100dvh - 2 * var(--rf-space-4)); overflow: auto; animation: rf-modal-in var(--rf-dur-base) var(--rf-ease-out); }
+/* Real modal: fixed full-screen overlay, modal centered above everything.
+   Preferred markup: <dialog class="rf-modal"> opened with showModal() (native focus trap, Esc, ::backdrop).
+   Alternative: <div class="rf-overlay"><div class="rf-modal" role="dialog" aria-modal="true">…</div></div> */
+.rf-overlay { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: var(--rf-space-4); background: rgba(7, 29, 48, 0.45); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); animation: rf-fade-in var(--rf-dur-base) var(--rf-ease-out); }
+dialog.rf-modal { padding: 0; margin: auto; color: var(--rf-text); }
+dialog.rf-modal::backdrop { background: rgba(7, 29, 48, 0.45); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+/* Documentation only: shows a modal in the page flow (design/preview.html). Never in the product. */
+.rf-overlay--inline { position: relative; inset: auto; z-index: auto; border-radius: var(--rf-radius-lg); padding: var(--rf-space-10) var(--rf-space-6); animation: none; }
+@keyframes rf-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rf-modal-in { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
 .rf-toast { display: flex; gap: var(--rf-space-3); align-items: center; background: var(--rf-text); color: var(--rf-bg); padding: var(--rf-space-3) var(--rf-space-4); border-radius: var(--rf-radius-md); box-shadow: var(--rf-shadow-popover); font-size: var(--rf-text-body); max-width: 420px; }
 .rf-toast svg { width: 18px; height: 18px; color: var(--rf-success); flex: none; }
 

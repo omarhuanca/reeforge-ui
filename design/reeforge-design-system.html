@@ -62,6 +62,7 @@
   --rf-info: #0E7490;
   --rf-info-bg: #E0F2F6;
   --rf-info-border: #B3DEE8;
+  --rf-sandbox-line: #E0A82E;
 
   /* ---- Charts (categorical, in this order) ---- */
   --rf-chart-1: #0C6496;
@@ -202,6 +203,7 @@
     --rf-info: #5BC6DC;
     --rf-info-bg: #0E2E36;
     --rf-info-border: #1A4D58;
+    --rf-sandbox-line: #F2B84B;
     --rf-chart-1: #3A9FD8;
     --rf-chart-2: #5BC6DC;
     --rf-chart-3: #E0B54A;
@@ -267,6 +269,7 @@
   --rf-info: #5BC6DC;
   --rf-info-bg: #0E2E36;
   --rf-info-border: #1A4D58;
+  --rf-sandbox-line: #F2B84B;
   --rf-chart-1: #3A9FD8;
   --rf-chart-2: #5BC6DC;
   --rf-chart-3: #E0B54A;
@@ -432,7 +435,7 @@
 .rf-alert--danger { background: var(--rf-danger-bg); border-color: var(--rf-danger-border); }
 .rf-alert--danger svg { color: var(--rf-danger); }
 .rf-ocean { background: var(--rf-gradient-ocean); color: #E6EDF3; }
-.rf-sandbox-strip { height: 3px; background: repeating-linear-gradient(-45deg, var(--rf-warning) 0 8px, transparent 8px 16px); }
+.rf-sandbox-strip { height: 2px; background: var(--rf-sandbox-line); }
 
 /* ---------- Panels (the only container; never nest) ---------- */
 .rf-panel { background: var(--rf-surface-data); border: 1px solid var(--rf-border); border-radius: var(--rf-radius-lg); box-shadow: var(--rf-shadow-sm); }
@@ -520,7 +523,17 @@
 .rf-modal__head { padding: var(--rf-space-5) var(--rf-space-6) 0; }
 .rf-modal__body { padding: var(--rf-space-3) var(--rf-space-6) var(--rf-space-5); color: var(--rf-text-muted); }
 .rf-modal__foot { display: flex; justify-content: flex-end; gap: var(--rf-space-2); padding: var(--rf-space-4) var(--rf-space-6); border-top: 1px solid var(--rf-border); }
-.rf-overlay { background: rgba(7, 29, 48, 0.45); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.rf-modal { max-height: calc(100dvh - 2 * var(--rf-space-4)); overflow: auto; animation: rf-modal-in var(--rf-dur-base) var(--rf-ease-out); }
+/* Real modal: fixed full-screen overlay, modal centered above everything.
+   Preferred markup: <dialog class="rf-modal"> opened with showModal() (native focus trap, Esc, ::backdrop).
+   Alternative: <div class="rf-overlay"><div class="rf-modal" role="dialog" aria-modal="true">…</div></div> */
+.rf-overlay { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: var(--rf-space-4); background: rgba(7, 29, 48, 0.45); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); animation: rf-fade-in var(--rf-dur-base) var(--rf-ease-out); }
+dialog.rf-modal { padding: 0; margin: auto; color: var(--rf-text); }
+dialog.rf-modal::backdrop { background: rgba(7, 29, 48, 0.45); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+/* Documentation only: shows a modal in the page flow (design/preview.html). Never in the product. */
+.rf-overlay--inline { position: relative; inset: auto; z-index: auto; border-radius: var(--rf-radius-lg); padding: var(--rf-space-10) var(--rf-space-6); animation: none; }
+@keyframes rf-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rf-modal-in { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
 .rf-toast { display: flex; gap: var(--rf-space-3); align-items: center; background: var(--rf-text); color: var(--rf-bg); padding: var(--rf-space-3) var(--rf-space-4); border-radius: var(--rf-radius-md); box-shadow: var(--rf-shadow-popover); font-size: var(--rf-text-body); max-width: 420px; }
 .rf-toast svg { width: 18px; height: 18px; color: var(--rf-success); flex: none; }
 
@@ -832,7 +845,7 @@
         <tr><td>Invoice</td><td><div class="ds-row"><span class="rf-badge rf-badge--success">Fiscalized</span><span class="rf-badge rf-badge--warning">Pending</span><span class="rf-badge rf-badge--danger">Failed</span></div></td></tr>
         <tr><td>Certificate</td><td><div class="ds-row"><span class="rf-badge rf-badge--success">Valid</span><span class="rf-badge rf-badge--warning">Expires in 21 days</span><span class="rf-badge rf-badge--danger">Revoked</span><span class="rf-badge rf-badge--neutral">Expired</span></div></td></tr>
         <tr><td>Xero connection</td><td><div class="ds-row"><span class="rf-badge rf-badge--success">Connected</span><span class="rf-badge rf-badge--warning">Needs setup</span><span class="rf-badge rf-badge--neutral">Not connected</span></div></td></tr>
-        <tr><td>TaxCore environment</td><td><div class="ds-row"><span class="rf-badge rf-badge--sandbox rf-badge--plain">Sandbox</span><span class="rf-badge rf-badge--production rf-badge--plain">Production</span></div></td></tr>
+        <tr><td>TaxCore environment</td><td><div class="ds-row"><span class="rf-badge rf-badge--sandbox rf-badge--plain" title="Sandbox · test invoices, no legal value">Sandbox</span><span class="rf-badge rf-badge--production rf-badge--plain">Production</span></div></td></tr>
       </tbody>
     </table>
   </div>
@@ -843,7 +856,7 @@
     <div class="rf-alert rf-alert--danger"><i data-i="x"></i><div><strong>3 invoices failed.</strong> TaxCore rejected the tax label "C". Map it in Xero settings, then retry. <a class="rf-link" href="#">Open Xero settings</a></div></div>
   </div>
   <ul class="ds-rules">
-    <li><b>Sandbox</b> is never subtle: amber badge in the top bar plus a striped line across the top of every page.</li>
+    <li><b>Sandbox</b> stays visible without shouting: amber badge in the top bar (tooltip "Sandbox · test invoices, no legal value") plus a thin solid amber line across the top of every page.</li>
     <li><b>Error copy</b>: what happened, then what to do. Never show a raw TaxCore error code alone; put it in a details row.</li>
   </ul>
 </section>
@@ -947,7 +960,7 @@
             <button class="rf-company-switcher" aria-label="Switch company"><span class="rf-avatar rf-avatar--company">TC</span><span style="min-width:0"><span class="rf-company-switcher__name">Tanna Coffee Co.</span><span class="rf-company-switcher__meta">Certificate 5VPJ3NC7</span></span><i data-i="chevron"></i></button>
           </div>
           <div class="rf-topbar__end">
-            <span class="rf-badge rf-badge--sandbox rf-badge--plain">Sandbox</span>
+            <span class="rf-badge rf-badge--sandbox rf-badge--plain" title="Sandbox · test invoices, no legal value">Sandbox</span>
             <div class="rf-lang rf-hide-mobile" role="group" aria-label="Language"><button aria-pressed="true">EN</button><button>BI</button></div>
             <button class="rf-btn rf-btn--ghost rf-icon-btn rf-hide-mobile" aria-label="Search"><i data-i="search"></i></button>
             <span class="rf-avatar" title="Raquel M. (you)">RM</span>
@@ -1009,7 +1022,7 @@
 <section class="ds-section" id="overlays">
   <header><h2 class="rf-h1">Modals and toasts</h2><p>Modals only for confirmations and short focused tasks. Everything else happens inline or on a page.</p></header>
   <div class="ds-grid ds-cols-2">
-    <div class="rf-overlay" style="border-radius:var(--rf-radius-lg);padding:var(--rf-space-10) var(--rf-space-6);display:grid;place-items:center">
+    <div class="rf-overlay rf-overlay--inline">
       <div class="rf-modal" role="dialog" aria-labelledby="m1">
         <div class="rf-modal__head"><h2 class="rf-h2" id="m1">Delete Tanna Coffee Co.?</h2></div>
         <div class="rf-modal__body">Its certificate, Xero connection and 1 304 invoice records will be permanently deleted. Fiscalized invoices stay valid at TaxCore.</div>
@@ -1017,9 +1030,16 @@
       </div>
     </div>
     <div class="ds-grid" style="align-content:center;justify-items:start">
+      <button class="rf-btn rf-btn--danger" id="open-modal">Open the real modal</button>
+      <dialog class="rf-modal" id="real-modal" aria-labelledby="m2">
+        <div class="rf-modal__head"><h2 class="rf-h2" id="m2">Delete Tanna Coffee Co.?</h2></div>
+        <div class="rf-modal__body">Its certificate, Xero connection and 1 304 invoice records will be permanently deleted. Fiscalized invoices stay valid at TaxCore.</div>
+        <form method="dialog" class="rf-modal__foot"><button class="rf-btn rf-btn--secondary" value="cancel" autofocus>Cancel</button><button class="rf-btn rf-btn--danger" value="delete">Delete company</button></form>
+      </dialog>
       <div class="rf-toast"><i data-i="check"></i>Invoice POS1-2026-000125 fiscalized</div>
       <div class="rf-toast"><i data-i="check"></i>Certificate uploaded · valid until 13 Jul 2029</div>
-      <ul class="ds-rules"><li><b>Toasts</b> confirm a finished action in past tense, disappear after 5s, and never carry errors (errors stay on the page).</li></ul>
+      <ul class="ds-rules"><li><b>The box on the left is only a display</b> (<code class="rf-mono">rf-overlay--inline</code>). In the product a modal always opens above everything: use <code class="rf-mono">&lt;dialog class="rf-modal"&gt;</code> with <code class="rf-mono">showModal()</code>. Click the button above to see it.</li>
+        <li><b>Toasts</b> confirm a finished action in past tense, disappear after 5s, and never carry errors (errors stay on the page).</li></ul>
     </div>
   </div>
 </section>
@@ -1146,6 +1166,10 @@ document.getElementById("pseudo-btn").addEventListener("click", e => {
     });
   });
 });
+
+const realModal = document.getElementById("real-modal");
+document.getElementById("open-modal").addEventListener("click", () => realModal.showModal());
+realModal.addEventListener("click", e => { if (e.target === realModal) realModal.close(); });
 
 renderSwatches(); renderChart(); addEventListener("resize", renderChart);
 </script>
