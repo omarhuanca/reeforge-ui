@@ -6,11 +6,11 @@
     <meta name="color-scheme" content="light dark" />
     <title>Reeforge Finance</title>
     <script>
-      // Apply the saved or OS theme before first paint to avoid a light flash in dark mode.
+      // Apply an explicit saved theme before first paint to avoid a light flash in dark mode.
+      // With "system" (or nothing saved) data-theme stays unset and the tokens follow the OS.
       try {
         var t = localStorage.getItem('reeforge.theme')
-        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-        document.documentElement.setAttribute('data-theme', t)
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t)
       } catch (e) {}
     </script>
   </head>

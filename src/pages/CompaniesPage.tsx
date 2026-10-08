@@ -1,16 +1,28 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useCompanies, useDeleteCompany, useSaveCompany } from '../api/hooks'
 import { ApiError, errorMessage } from '../api/client'
 import type { Company } from '../api/types'
+import { IconEdit, IconMore, IconTrash, IconUpload } from '../components/icons'
+import { Menu } from '../components/Menu'
 import { Badge, Empty, ErrorAlert, Field, Modal, Pager, Skeleton } from '../components/ui'
 import { formatDate } from '../format'
+import { UploadCertificateModal } from './UploadCertificateModal'
 
 export function CompaniesPage() {
   const [page, setPage] = useState(1)
   const q = useCompanies(page)
   const [creating, setCreating] = useState(false)
+  const [renaming, setRenaming] = useState<Company | null>(null)
+  const [uploading, setUploading] = useState<Company | null>(null)
   const [deleting, setDeleting] = useState<Company | null>(null)
+  const [toast, setToast] = useState('')
+
+  useEffect(() => {
+    if (!toast) return
+    const t = setTimeout(() => setToast(''), 5000)
+    return () => clearTimeout(t)
+  }, [toast])
 
   return (
     <div className="stack">
@@ -28,10 +40,15 @@ export function CompaniesPage() {
         <Empty title="No companies yet" text="Add the first company, then upload its TaxCore certificate." action={<button className="rf-btn rf-btn--primary" onClick={() => setCreating(true)}>Add company</button>} />
       )}
       {q.data && q.data.data.length > 0 && (
-        <div className="rf-table-wrap">
+        <div className="rf-table-wrap rf-table-wrap--menus">
           <table className="rf-table">
             <thead>
-              <tr><th>Business name</th><th>Certificate</th><th>Created</th><th /></tr>
+              <tr>
+                <th>Business name</th>
+                <th>Certificate</th>
+                <th>Created</th>
+                <th style={{ width: 48 }}><span className="rf-sr-only">Actions</span></th>
+              </tr>
             </thead>
             <tbody>
               {q.data.data.map((c) => (
@@ -40,8 +57,23 @@ export function CompaniesPage() {
                   <td>{c.has_usable_certificate ? <Badge cls="rf-badge--success">Valid</Badge> : <Badge cls="rf-badge--warning">Needs setup</Badge>}</td>
                   <td>{formatDate(c.created_at)}</td>
                   <td className="rf-col-num">
-                    {!c.has_usable_certificate && <Link className="rf-btn rf-btn--secondary rf-btn--sm" to={`/companies/${c.id}?upload=1`}>Upload certificate</Link>}{' '}
-                    <button className="rf-btn rf-btn--danger-ghost rf-btn--sm" onClick={() => setDeleting(c)}>Delete company</button></td>
+                    <Menu label={`Actions for ${c.business_name}`} buttonClass="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" trigger={<IconMore />}>
+                      {(close) => (
+                        <>
+                          <button type="button" className="rf-menu__item" role="menuitem" onClick={() => { close(); setUploading(c) }}>
+                            <IconUpload />Upload certificate
+                          </button>
+                          <button type="button" className="rf-menu__item" role="menuitem" onClick={() => { close(); setRenaming(c) }}>
+                            <IconEdit />Rename company
+                          </button>
+                          <div className="rf-menu__sep" role="separator" />
+                          <button type="button" className="rf-menu__item rf-menu__item--danger" role="menuitem" onClick={() => { close(); setDeleting(c) }}>
+                            <IconTrash />Delete company
+                          </button>
+                        </>
+                      )}
+                    </Menu>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -51,7 +83,10 @@ export function CompaniesPage() {
       )}
 
       {creating && <CompanyForm onClose={() => setCreating(false)} />}
+      {renaming && <CompanyForm company={renaming} onClose={() => setRenaming(null)} />}
+      {uploading && <UploadCertificateModal companyId={uploading.id} onClose={() => setUploading(null)} onUploaded={() => setToast('Certificate uploaded')} />}
       {deleting && <DeleteCompany company={deleting} onClose={() => setDeleting(null)} />}
+      {toast && <div className="rf-toast toast-fixed" role="status">{toast}</div>}
     </div>
   )
 }

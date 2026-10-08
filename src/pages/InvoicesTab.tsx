@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useCreateInvoice, useInvoice, useInvoices } from '../api/hooks'
+import { useCreateInvoice, useInvoice, useInvoiceCounts, useInvoices } from '../api/hooks'
 import type { InvoiceStatus } from '../api/types'
 import { Badge, Empty, ErrorAlert, Field, Modal, Pager, Skeleton } from '../components/ui'
 import { STATUS_BADGE } from '../components/status'
@@ -28,17 +28,22 @@ export function InvoicesTab({ companyId }: { companyId: number }) {
   const [open, setOpen] = useState<number | null>(null)
   const [creating, setCreating] = useState(false)
   const q = useInvoices(companyId, page, status)
+  const counts = useInvoiceCounts(companyId)
 
   return (
     <div className="stack">
-      <div className="row">
-        <div className="rf-tabs grow">
+      <div className="rf-toolbar">
+        <div className="rf-segmented" role="group" aria-label="Filter by status">
           {FILTERS.map((f) => (
-            <button key={f.value} className="rf-tab" aria-selected={status === f.value} onClick={() => { setStatus(f.value); setPage(1) }}>
+            <button key={f.value} aria-pressed={status === f.value} onClick={() => { setStatus(f.value); setPage(1) }}>
               {f.label}
+              <span className={`rf-segmented__count${f.value === 'failed' ? ' rf-segmented__count--danger' : ''}`}>
+                {counts[f.value] ?? '–'}
+              </span>
             </button>
           ))}
         </div>
+        <span className="rf-toolbar__spacer" />
         <button className="rf-btn rf-btn--secondary" onClick={() => setCreating(true)}>Fiscalize invoice</button>
       </div>
 

@@ -169,6 +169,10 @@
 .rf-table .rf-col-num { text-align: right; font-variant-numeric: tabular-nums; }
 .rf-table .rf-col-id { font-family: var(--rf-font-mono); font-size: var(--rf-text-xs); color: var(--rf-text-muted); }
 .rf-table--compact td { height: 36px; }
+/* Tables with row menus: the wrapper must not clip the menu. If the table is too wide to
+   avoid horizontal scroll, render the menu outside the scroll container instead
+   (popover attribute or a portal) so it is never cut off. */
+.rf-table-wrap--menus { overflow: visible; }
 .rf-th-sort { display: inline-flex; gap: 4px; align-items: center; cursor: pointer; color: inherit; background: none; border: 0; font: inherit; padding: 0; }
 .rf-th-sort[aria-sort] { color: var(--rf-text); }
 .rf-table-foot { display: flex; justify-content: space-between; align-items: center; padding: var(--rf-space-3) var(--rf-space-4); border-top: 1px solid var(--rf-border); font-size: var(--rf-text-sm); color: var(--rf-text-muted); }
@@ -237,6 +241,65 @@ dialog.rf-modal::backdrop { background: rgba(7, 29, 48, 0.45); -webkit-backdrop-
 @keyframes rf-modal-in { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
 .rf-toast { display: flex; gap: var(--rf-space-3); align-items: center; background: var(--rf-text); color: var(--rf-bg); padding: var(--rf-space-3) var(--rf-space-4); border-radius: var(--rf-radius-md); box-shadow: var(--rf-shadow-popover); font-size: var(--rf-text-body); max-width: 420px; }
 .rf-toast svg { width: 18px; height: 18px; color: var(--rf-success); flex: none; }
+
+/* ---------- Segmented filter ----------
+   Status filters inside a tab or above a table (All / Fiscalized / Pending / Failed).
+   Visually distinct from tabs on purpose: tabs change the page, filters narrow a list.
+   Default selection is always "All". */
+.rf-segmented { display: inline-flex; gap: 2px; padding: 2px; min-width: 0; max-width: 100%; overflow-x: auto; border-radius: var(--rf-radius-md); background: var(--rf-surface-subtle); box-shadow: inset 0 0 0 1px var(--rf-border); }
+.rf-segmented button { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 var(--rf-space-3); border: 0; border-radius: calc(var(--rf-radius-md) - 2px); background: transparent; color: var(--rf-text-muted); font: 500 var(--rf-text-sm)/1 var(--rf-font-sans); white-space: nowrap; cursor: pointer; transition: background-color var(--rf-dur-fast), color var(--rf-dur-fast); }
+.rf-segmented button:hover { color: var(--rf-text); }
+.rf-segmented button[aria-pressed="true"] { background: var(--rf-surface); color: var(--rf-text); box-shadow: var(--rf-shadow-xs); }
+.rf-segmented__count { font-size: var(--rf-text-xs); font-weight: 600; color: var(--rf-text-muted); font-variant-numeric: tabular-nums; }
+.rf-segmented__count--danger { color: var(--rf-danger); }
+.rf-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--rf-space-3); margin-bottom: var(--rf-space-3); }
+.rf-toolbar > * { min-width: 0; max-width: 100%; }
+.rf-toolbar__spacer { flex: 1; }
+
+/* ---------- File input ----------
+   <label class="rf-file"><input type="file" accept=".p12,.pfx">…</label>. The native input
+   covers the whole zone (keyboard and drag-and-drop work), the label shows the state. */
+.rf-file { position: relative; display: flex; align-items: center; gap: var(--rf-space-3); min-height: 64px; padding: var(--rf-space-3) var(--rf-space-4); border: 1px dashed var(--rf-border-strong); border-radius: var(--rf-radius-md); background: var(--rf-surface); cursor: pointer; transition: border-color var(--rf-dur-fast), background-color var(--rf-dur-fast); }
+.rf-file input[type="file"] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.rf-file:hover, .rf-file[data-drag="true"] { border-color: var(--rf-primary); background: var(--rf-primary-soft); }
+.rf-file:focus-within { border-color: var(--rf-primary); box-shadow: 0 0 0 3px var(--rf-ring); }
+.rf-file[data-state="selected"] { border-style: solid; }
+.rf-file[aria-invalid="true"] { border-color: var(--rf-danger); }
+.rf-file__icon { width: 36px; height: 36px; flex: none; display: grid; place-content: center; border-radius: var(--rf-radius-md); background: var(--rf-primary-soft); color: var(--rf-primary-text); }
+.rf-file__icon svg { width: 18px; height: 18px; }
+.rf-file__text { min-width: 0; display: grid; gap: 2px; }
+.rf-file__name { font-size: var(--rf-text-sm); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rf-file__meta { font-size: var(--rf-text-xs); color: var(--rf-text-muted); }
+
+/* ---------- Secret field (password, PAC) ----------
+   Masked by default, show/hide button, never autofilled: autocomplete="off" (PAC) or
+   "new-password" (certificate password), spellcheck="false". */
+.rf-input-group { position: relative; display: flex; }
+.rf-input-group .rf-input { padding-right: 44px; }
+.rf-input-group__btn { position: absolute; top: 50%; right: 4px; transform: translateY(-50%); width: 36px; height: 28px; display: grid; place-content: center; border: 0; border-radius: var(--rf-radius-sm); background: transparent; color: var(--rf-text-muted); cursor: pointer; }
+.rf-input-group__btn:hover { background: var(--rf-surface-subtle); color: var(--rf-text); }
+.rf-input-group__btn svg { width: 16px; height: 16px; }
+
+/* ---------- Menu (row actions "…", user menu) ----------
+   <div class="rf-menu-wrap"><button aria-haspopup="menu" aria-expanded="false" aria-controls="m">…</button>
+   <div class="rf-menu" id="m" role="menu" hidden>…</div></div>. Opens below, aligned right.
+   Esc and outside click close it; focus moves to the first item. Destructive items go last,
+   after a separator, in danger color, and still confirm in a modal. */
+.rf-menu-wrap { position: relative; display: inline-block; }
+.rf-menu { position: absolute; top: calc(100% + 4px); right: 0; z-index: 30; min-width: 200px; padding: var(--rf-space-1); border: 1px solid var(--rf-border); border-radius: var(--rf-radius-md); background: var(--rf-glass-bg-strong); -webkit-backdrop-filter: blur(var(--rf-glass-blur)) saturate(160%); backdrop-filter: blur(var(--rf-glass-blur)) saturate(160%); box-shadow: var(--rf-shadow-popover); text-align: left; animation: rf-fade-in var(--rf-dur-fast) var(--rf-ease-out); }
+.rf-menu[hidden] { display: none; }
+/* Opens upward when there is no room below (last rows of a scrolling table) */
+.rf-menu--up { top: auto; bottom: calc(100% + 4px); }
+.rf-menu__item { display: flex; align-items: center; gap: 10px; width: 100%; height: 36px; padding: 0 10px; border: 0; border-radius: calc(var(--rf-radius-md) - 2px); background: transparent; color: var(--rf-text); font: 400 var(--rf-text-body)/1 var(--rf-font-sans); text-align: left; text-decoration: none; white-space: nowrap; cursor: pointer; }
+.rf-menu__item svg { width: 16px; height: 16px; color: var(--rf-text-muted); flex: none; }
+.rf-menu__item:hover, .rf-menu__item:focus-visible { background: var(--rf-surface-subtle); outline: none; }
+.rf-menu__item--danger, .rf-menu__item--danger svg { color: var(--rf-danger); }
+.rf-menu__item--danger:hover, .rf-menu__item--danger:focus-visible { background: var(--rf-danger-bg); }
+.rf-menu__sep { height: 1px; margin: var(--rf-space-1) 0; background: var(--rf-border); }
+.rf-menu__label { padding: var(--rf-space-2) 10px var(--rf-space-1); font-size: var(--rf-text-xs); color: var(--rf-text-muted); }
+.rf-menu__label strong { color: var(--rf-text); font-weight: 600; }
+.rf-menu__section { padding: var(--rf-space-1) 10px var(--rf-space-2); }
+.rf-avatar-btn { padding: 0; border: 0; background: none; border-radius: var(--rf-radius-full); cursor: pointer; }
 
 /* ---------- Glass & fluid ---------- */
 /* Generic glass surface for chrome layers. Never use it behind long text or tables. */

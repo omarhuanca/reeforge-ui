@@ -85,6 +85,8 @@ export function Pager({
   total: number
   onPage: (p: number) => void
 }) {
+  // A single page needs no pagination.
+  if (last <= 1) return null
   return (
     <div className="rf-table-foot">
       <span>{total} total</span>

@@ -54,10 +54,11 @@
   .ds-receipt div { display: flex; justify-content: space-between; gap: var(--rf-space-4); }
   .ds-receipt span:first-child { color: #95A3B2; }
   .ds-receipt .rf-mono { color: #E6EDF3; }
-  @media (max-width: 900px) { .ds-login { grid-template-columns: 1fr; } .ds-login__side { display: none; } .ds-type-row { grid-template-columns: 1fr; } }
+  @media (max-width: 900px) { .ds-login__form { padding: var(--rf-space-8) var(--rf-space-5); } .ds-login { grid-template-columns: 1fr; } .ds-login__side { display: none; } .ds-type-row { grid-template-columns: 1fr; } }
   .ds-chart { width: 100%; height: 220px; display: block; }
   .ds-legend { display: flex; gap: var(--rf-space-4); font-size: var(--rf-text-xs); color: var(--rf-text-muted); }
   .ds-legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
+  .rf-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .ds-do-dont { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--rf-space-4); }
   .ds-do-dont ul { margin: var(--rf-space-2) 0 0; padding-left: 18px; display: grid; gap: 6px; font-size: var(--rf-text-sm); }
 </style>
@@ -227,6 +228,27 @@
       </div>
     </div>
   </div>
+
+  <div class="ds-caption" style="margin-top:var(--rf-space-8)">Upload certificate (modal content): file zone and secret fields</div>
+  <div class="rf-panel" style="max-width:480px">
+    <div class="rf-panel__body ds-grid" style="gap:var(--rf-space-5)">
+      <div class="rf-field"><span class="rf-label" id="cert-label">Certificate file</span>
+        <label class="rf-file" id="cert-zone"><input type="file" accept=".p12,.pfx" aria-labelledby="cert-label" id="cert-file">
+          <span class="rf-file__icon"><i data-i="upload"></i></span>
+          <span class="rf-file__text"><span class="rf-file__name" id="cert-name">Choose a .p12 or .pfx file</span><span class="rf-file__meta" id="cert-meta">or drop it here · up to 100 KB</span></span>
+        </label></div>
+      <div class="rf-field"><label class="rf-label" for="cert-pass">Certificate password</label>
+        <div class="rf-input-group"><input class="rf-input" id="cert-pass" type="password" autocomplete="new-password" spellcheck="false"><button class="rf-input-group__btn" type="button" aria-label="Show password" data-reveal="cert-pass"><i data-i="eye"></i></button></div>
+        <span class="rf-help">The password TaxCore gave you with the certificate.</span></div>
+      <div class="rf-field"><label class="rf-label" for="cert-pac">PAC</label>
+        <div class="rf-input-group"><input class="rf-input rf-input--mono" id="cert-pac" type="password" autocomplete="off" spellcheck="false"><button class="rf-input-group__btn" type="button" aria-label="Show PAC" data-reveal="cert-pac"><i data-i="eye"></i></button></div>
+        <span class="rf-help">The PAC code TaxCore sent with the certificate. It is needed to sign invoices.</span></div>
+    </div>
+  </div>
+  <ul class="ds-rules">
+    <li><b>Files</b> use the drop zone (<code class="rf-mono">rf-file</code>), never the bare browser "Choose File" button. After selection it shows the file name and size.</li>
+    <li><b>Secrets</b> (passwords, PAC) are masked with a show/hide button, never autofilled, and every technical acronym gets a help line saying what it is and where it comes from.</li>
+  </ul>
 </section>
 
 <!-- ================= STATUS ================= -->
@@ -283,7 +305,7 @@
   <div class="ds-caption" style="margin-top:var(--rf-space-8)">Table with toolbar</div>
   <div class="ds-row" style="margin-bottom:var(--rf-space-3)">
     <div style="position:relative;flex:1;min-width:220px;max-width:320px"><input class="rf-input" placeholder="Search reference or customer" style="padding-left:34px"><i data-i="search" style="position:absolute;left:10px;top:9px;color:var(--rf-text-subtle)"></i></div>
-    <select class="rf-select" style="width:auto"><option>All statuses</option><option>Fiscalized</option><option>Pending</option><option>Failed</option></select>
+    <div class="rf-segmented" role="group" aria-label="Filter by status"><button aria-pressed="true">All <span class="rf-segmented__count">1 304</span></button><button aria-pressed="false">Fiscalized <span class="rf-segmented__count">1 284</span></button><button aria-pressed="false">Pending <span class="rf-segmented__count">17</span></button><button aria-pressed="false">Failed <span class="rf-segmented__count rf-segmented__count--danger">3</span></button></div>
     <select class="rf-select" style="width:auto"><option>Last 30 days</option><option>This month</option></select>
     <span style="flex:1"></span>
     <button class="rf-btn rf-btn--secondary"><i data-i="download"></i>Export CSV</button>
@@ -293,10 +315,10 @@
     <table class="rf-table">
       <thead><tr><th style="width:32px"><label class="rf-check"><input type="checkbox" aria-label="Select all"></label></th><th><button class="rf-th-sort" aria-sort="descending">Date <i data-i="sort"></i></button></th><th>Reference</th><th>Customer</th><th>TaxCore number</th><th>Status</th><th class="rf-col-num">Amount</th><th></th></tr></thead>
       <tbody>
-        <tr><td><label class="rf-check"><input type="checkbox" aria-label="Select"></label></td><td>25 Sep, 10:15</td><td>POS1-2026-000123</td><td>Worth It Ltd</td><td class="rf-col-id">5VPJ3NC7-5VPJ3NC7-138</td><td><span class="rf-badge rf-badge--success">Fiscalized</span></td><td class="rf-col-num">VT 23 000</td><td><button class="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" aria-label="Actions"><i data-i="more"></i></button></td></tr>
-        <tr aria-selected="true"><td><label class="rf-check"><input type="checkbox" checked aria-label="Select"></label></td><td>25 Sep, 10:22</td><td>INV-0457</td><td>Port Vila Supplies</td><td class="rf-col-id">5VPJ3NC7-5VPJ3NC7-139</td><td><span class="rf-badge rf-badge--success">Fiscalized</span></td><td class="rf-col-num">VT 148 500</td><td><button class="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" aria-label="Actions"><i data-i="more"></i></button></td></tr>
-        <tr><td><label class="rf-check"><input type="checkbox" aria-label="Select"></label></td><td>25 Sep, 10:31</td><td>INV-0458</td><td>Santo Hardware</td><td class="rf-col-id">—</td><td><span class="rf-badge rf-badge--warning">Pending</span></td><td class="rf-col-num">VT 61 250</td><td><button class="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" aria-label="Actions"><i data-i="more"></i></button></td></tr>
-        <tr id="reforge-row"><td><label class="rf-check"><input type="checkbox" aria-label="Select"></label></td><td>25 Sep, 10:40</td><td>POS1-2026-000125</td><td>Tanna Coffee Co.</td><td class="rf-col-id" data-cell="num">—</td><td data-cell="status"><span class="rf-badge rf-badge--danger">Failed</span></td><td class="rf-col-num">VT 9 811</td><td><button class="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" aria-label="Actions"><i data-i="more"></i></button></td></tr>
+        <tr><td><label class="rf-check"><input type="checkbox" aria-label="Select"></label></td><td>25 Sep, 10:15</td><td>POS1-2026-000123</td><td>Worth It Ltd</td><td class="rf-col-id">5VPJ3NC7-5VPJ3NC7-138</td><td><span class="rf-badge rf-badge--success">Fiscalized</span></td><td class="rf-col-num">VT 23 000</td><td><div class="rf-menu-wrap"><button class="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" aria-label="Actions" aria-haspopup="menu" aria-expanded="false" aria-controls="inv-menu-1" data-menu-trigger><i data-i="more"></i></button><div class="rf-menu" id="inv-menu-1" role="menu" hidden><button class="rf-menu__item" role="menuitem"><i data-i="file"></i>View details</button><button class="rf-menu__item" role="menuitem"><i data-i="external"></i>Open in Xero</button><button class="rf-menu__item" role="menuitem"><i data-i="copy"></i>Copy TaxCore number</button></div></div></td></tr>
+        <tr aria-selected="true"><td><label class="rf-check"><input type="checkbox" checked aria-label="Select"></label></td><td>25 Sep, 10:22</td><td>INV-0457</td><td>Port Vila Supplies</td><td class="rf-col-id">5VPJ3NC7-5VPJ3NC7-139</td><td><span class="rf-badge rf-badge--success">Fiscalized</span></td><td class="rf-col-num">VT 148 500</td><td><div class="rf-menu-wrap"><button class="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" aria-label="Actions" aria-haspopup="menu" aria-expanded="false" aria-controls="inv-menu-2" data-menu-trigger><i data-i="more"></i></button><div class="rf-menu" id="inv-menu-2" role="menu" hidden><button class="rf-menu__item" role="menuitem"><i data-i="file"></i>View details</button><button class="rf-menu__item" role="menuitem"><i data-i="external"></i>Open in Xero</button><button class="rf-menu__item" role="menuitem"><i data-i="copy"></i>Copy TaxCore number</button></div></div></td></tr>
+        <tr><td><label class="rf-check"><input type="checkbox" aria-label="Select"></label></td><td>25 Sep, 10:31</td><td>INV-0458</td><td>Santo Hardware</td><td class="rf-col-id">—</td><td><span class="rf-badge rf-badge--warning">Pending</span></td><td class="rf-col-num">VT 61 250</td><td><div class="rf-menu-wrap"><button class="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" aria-label="Actions" aria-haspopup="menu" aria-expanded="false" aria-controls="inv-menu-3" data-menu-trigger><i data-i="more"></i></button><div class="rf-menu" id="inv-menu-3" role="menu" hidden><button class="rf-menu__item" role="menuitem"><i data-i="file"></i>View details</button><button class="rf-menu__item" role="menuitem"><i data-i="external"></i>Open in Xero</button><button class="rf-menu__item" role="menuitem"><i data-i="copy"></i>Copy TaxCore number</button></div></div></td></tr>
+        <tr id="reforge-row"><td><label class="rf-check"><input type="checkbox" aria-label="Select"></label></td><td>25 Sep, 10:40</td><td>POS1-2026-000125</td><td>Tanna Coffee Co.</td><td class="rf-col-id" data-cell="num">—</td><td data-cell="status"><span class="rf-badge rf-badge--danger">Failed</span></td><td class="rf-col-num">VT 9 811</td><td><div class="rf-menu-wrap"><button class="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" aria-label="Actions" aria-haspopup="menu" aria-expanded="false" aria-controls="inv-menu-4" data-menu-trigger><i data-i="more"></i></button><div class="rf-menu" id="inv-menu-4" role="menu" hidden><button class="rf-menu__item" role="menuitem"><i data-i="file"></i>View details</button><button class="rf-menu__item" role="menuitem"><i data-i="external"></i>Open in Xero</button><button class="rf-menu__item" role="menuitem"><i data-i="copy"></i>Copy TaxCore number</button></div></div></td></tr>
       </tbody>
     </table>
     <div class="rf-table-foot"><span>Showing 1–4 of 1 304</span><div class="ds-row"><button class="rf-btn rf-btn--secondary rf-btn--sm" aria-disabled="true">Previous</button><button class="rf-btn rf-btn--secondary rf-btn--sm">Next</button></div></div>
@@ -321,9 +343,37 @@
       </table>
     </div>
   </div>
+
+  <div class="ds-caption" style="margin-top:var(--rf-space-8)">Companies list: row actions in a "…" menu, no pagination on a single page</div>
+  <div class="rf-table-wrap rf-table-wrap--menus">
+    <table class="rf-table">
+      <thead><tr><th>Business name</th><th>Certificate</th><th>Created</th><th style="width:48px"><span class="rf-sr-only">Actions</span></th></tr></thead>
+      <tbody>
+        <tr><td><a class="rf-link" href="#">We Create</a></td><td><span class="rf-badge rf-badge--warning">Needs setup</span></td><td>7 Oct 2026, 19:33</td>
+          <td><div class="rf-menu-wrap"><button class="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" aria-label="Actions for We Create" aria-haspopup="menu" aria-expanded="false" aria-controls="co-menu-1" data-menu-trigger><i data-i="more"></i></button>
+          <div class="rf-menu" id="co-menu-1" role="menu" hidden><button class="rf-menu__item" role="menuitem"><i data-i="upload"></i>Upload certificate</button><button class="rf-menu__item" role="menuitem"><i data-i="edit"></i>Rename company</button><div class="rf-menu__sep" role="separator"></div><button class="rf-menu__item rf-menu__item--danger" role="menuitem"><i data-i="trash"></i>Delete company</button></div></div></td></tr>
+        <tr><td><a class="rf-link" href="#">Worth It Ltd</a></td><td><span class="rf-badge rf-badge--success">Valid</span></td><td>28 Sep 2026, 19:03</td>
+          <td><div class="rf-menu-wrap"><button class="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" aria-label="Actions for Worth It Ltd" aria-haspopup="menu" aria-expanded="false" aria-controls="co-menu-2" data-menu-trigger><i data-i="more"></i></button>
+          <div class="rf-menu" id="co-menu-2" role="menu" hidden><button class="rf-menu__item" role="menuitem"><i data-i="upload"></i>Upload certificate</button><button class="rf-menu__item" role="menuitem"><i data-i="edit"></i>Rename company</button><div class="rf-menu__sep" role="separator"></div><button class="rf-menu__item rf-menu__item--danger" role="menuitem"><i data-i="trash"></i>Delete company</button></div></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="ds-caption" style="margin-top:var(--rf-space-8)">Filtered list with no result: say what is empty and offer the way back</div>
+  <div class="rf-toolbar"><div class="rf-segmented" role="group" aria-label="Filter by status"><button aria-pressed="false">All <span class="rf-segmented__count">0</span></button><button aria-pressed="true">Fiscalized <span class="rf-segmented__count">0</span></button><button aria-pressed="false">Pending <span class="rf-segmented__count">0</span></button><button aria-pressed="false">Failed <span class="rf-segmented__count">0</span></button></div></div>
+  <div class="rf-table-wrap"><div class="rf-empty">
+    <p class="rf-empty__title">No fiscalized invoices yet</p>
+    <p class="rf-empty__text">Invoices appear here once TaxCore has signed them.</p>
+    <button class="rf-btn rf-btn--secondary">Show all invoices</button>
+  </div></div>
+
   <ul class="ds-rules">
     <li><b>Every table</b> has four states designed: loading (skeleton rows), empty (an invitation with one action), error (danger alert above the table with a retry), and long content (truncate with a tooltip, never wrap identifiers).</li>
     <li><b>Row height</b> 44px, compact 36px for dense admin lists. Header 36px, 12px semibold, muted.</li>
+    <li><b>Filters vs tabs</b>: tabs (<code class="rf-mono">rf-tabs</code>) switch between sections of a page; status filters inside a section use the segmented control (<code class="rf-mono">rf-segmented</code>) with counts. Never two rows of identical tabs. The default filter is always "All".</li>
+    <li><b>Row actions</b> live in a "…" menu (<code class="rf-mono">rf-menu</code>). Destructive actions go last, after a separator, in red, and still confirm in a modal. Never a red "Delete" link on every row.</li>
+    <li><b>Pagination</b> only when there is more than one page. With a single page, no footer buttons.</li>
+    <li><b>Filtered empty state</b>: name what is empty ("No fiscalized invoices yet") and offer the way back ("Show all invoices"). Never "No invoice has this status".</li>
   </ul>
 </section>
 
@@ -357,7 +407,7 @@
             <span class="rf-badge rf-badge--sandbox rf-badge--plain" title="Sandbox · test invoices, no legal value">Sandbox</span>
             <div class="rf-lang rf-hide-mobile" role="group" aria-label="Language"><button aria-pressed="true">EN</button><button>BI</button></div>
             <button class="rf-btn rf-btn--ghost rf-icon-btn rf-hide-mobile" aria-label="Search"><i data-i="search"></i></button>
-            <span class="rf-avatar" title="Raquel M. (you)">RM</span>
+            <div class="rf-menu-wrap"><button class="rf-avatar-btn" aria-label="Account menu" aria-haspopup="menu" aria-expanded="false" aria-controls="user-menu" data-menu-trigger><span class="rf-avatar">RM</span></button><div class="rf-menu" id="user-menu" role="menu" hidden><div class="rf-menu__label">Signed in as <strong>Raquel M.</strong></div><div class="rf-menu__sep" role="separator"></div><div class="rf-menu__label">Theme</div><div class="rf-menu__section"><div class="rf-segmented" role="group" aria-label="Theme"><button data-theme-set="light" aria-pressed="false">Light</button><button data-theme-set="dark" aria-pressed="false">Dark</button><button data-theme-set="system" aria-pressed="true">System</button></div></div><div class="rf-menu__sep" role="separator"></div><button class="rf-menu__item" role="menuitem"><i data-i="logout"></i>Sign out</button></div></div>
           </div>
         </div>
         <main class="rf-main">
@@ -381,6 +431,8 @@
     <li><b>One signal per problem level</b>: the red count in the nav says where, the alert says what to do. Tabs are plain filters, no repeated counts.</li>
     <li><b>Mobile</b> (under 900px): a menu button opens the sidebar as a drawer (Esc or a tap outside closes it); the language switcher moves to the user menu; tables scroll horizontally inside their frame.</li>
     <li><b>Company vs user</b>: the company is a neutral square, the user a blue circle.</li>
+    <li><b>User menu</b> (click the avatar): who is signed in, theme as Light / Dark / System, Sign out.</li>
+    <li><b>One button per action</b>: when the page header holds the primary action (for example "Upload certificate"), the alert that explains the problem has no button of its own. Other page actions ("Rename company") are secondary buttons, not plain text.</li>
   </ul>
 </section>
 
@@ -479,6 +531,12 @@ const ICONS = {
   building: '<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>',
   key: '<path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/>',
   sliders: '<line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/>',
+  upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>',
+  eye: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+  edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+  external: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+  copy: '<rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+  logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>',
   menu: '<line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="18" y2="18"/>',
   grid: '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>'
 };
@@ -520,7 +578,7 @@ function renderChart() {
 document.querySelectorAll("[data-theme-set]").forEach(b => b.addEventListener("click", () => {
   const t = b.dataset.themeSet;
   if (t === "system") document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", t);
-  document.querySelectorAll("[data-theme-set]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  document.querySelectorAll("[data-theme-set]").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.themeSet === t)));
   renderSwatches();
 }));
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderSwatches);
@@ -560,6 +618,45 @@ document.getElementById("pseudo-btn").addEventListener("click", e => {
     });
   });
 });
+
+// Menus: toggle, Esc / outside click close, focus first item
+const closeMenus = except => document.querySelectorAll("[data-menu-trigger]").forEach(t => {
+  const m = document.getElementById(t.getAttribute("aria-controls"));
+  if (m !== except) { m.hidden = true; t.setAttribute("aria-expanded", "false"); }
+});
+document.querySelectorAll("[data-menu-trigger]").forEach(t => t.addEventListener("click", e => {
+  e.stopPropagation();
+  const m = document.getElementById(t.getAttribute("aria-controls")), open = m.hidden;
+  closeMenus(m); m.hidden = !open; t.setAttribute("aria-expanded", String(open));
+  if (open) {
+    m.classList.remove("rf-menu--up");
+    const box = (t.closest(".rf-table-wrap:not(.rf-table-wrap--menus)") || document.documentElement).getBoundingClientRect();
+    if (m.getBoundingClientRect().bottom > Math.min(box.bottom, innerHeight)) m.classList.add("rf-menu--up");
+  }
+  if (open) { const first = m.querySelector(".rf-menu__item, button"); if (first) first.focus(); }
+}));
+document.addEventListener("click", e => { if (!e.target.closest(".rf-menu")) closeMenus(); });
+addEventListener("keydown", e => { if (e.key === "Escape") closeMenus(); });
+
+// Segmented filters (theme groups are handled by the theme switcher)
+document.querySelectorAll(".rf-segmented").forEach(g => g.querySelectorAll("button:not([data-theme-set])").forEach(b => b.addEventListener("click", () => {
+  g.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+})));
+
+// File zone and secret fields
+const certFile = document.getElementById("cert-file"), certZone = document.getElementById("cert-zone");
+certFile.addEventListener("change", () => {
+  const f = certFile.files[0]; if (!f) return;
+  document.getElementById("cert-name").textContent = f.name;
+  document.getElementById("cert-meta").textContent = (f.size / 1024).toFixed(1) + " KB · click to replace";
+  certZone.dataset.state = "selected";
+});
+["dragenter", "dragover"].forEach(ev => certZone.addEventListener(ev, () => certZone.dataset.drag = "true"));
+["dragleave", "drop"].forEach(ev => certZone.addEventListener(ev, () => certZone.dataset.drag = "false"));
+document.querySelectorAll("[data-reveal]").forEach(b => b.addEventListener("click", () => {
+  const i = document.getElementById(b.dataset.reveal), show = i.type === "password";
+  i.type = show ? "text" : "password"; b.setAttribute("aria-label", (show ? "Hide " : "Show ") + (b.dataset.reveal === "cert-pac" ? "PAC" : "password"));
+}));
 
 const realModal = document.getElementById("real-modal");
 document.getElementById("open-modal").addEventListener("click", () => realModal.showModal());

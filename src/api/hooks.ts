@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, ApiError } from './client'
 import type {
   Certificate,
@@ -72,6 +72,25 @@ export const useInvoices = (companyId: number, page: number, status: string) =>
       api<Paginated<Invoice>>(
         `/companies/${companyId}/invoices?page=${page}&per_page=20${status ? `&status=${status}` : ''}`,
       ),
+  })
+
+/** Totals per status for the filter counters: one single-row request each, read from meta.total. */
+export const INVOICE_COUNT_STATUSES = ['', 'fiscalized', 'pending', 'failed'] as const
+
+export const useInvoiceCounts = (companyId: number) =>
+  useQueries({
+    queries: INVOICE_COUNT_STATUSES.map((status) => ({
+      queryKey: ['invoices', companyId, 'count', status],
+      queryFn: () =>
+        api<Paginated<Invoice>>(`/companies/${companyId}/invoices?per_page=1${status ? `&status=${status}` : ''}`).then(
+          (r) => r.meta.total,
+        ),
+    })),
+    combine: (results) =>
+      Object.fromEntries(INVOICE_COUNT_STATUSES.map((s, i) => [s, results[i].data])) as Record<
+        (typeof INVOICE_COUNT_STATUSES)[number],
+        number | undefined
+      >,
   })
 
 export const useInvoice = (companyId: number, id: number | null) =>
