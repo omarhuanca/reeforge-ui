@@ -29,3 +29,11 @@ export const stringifyTaxLabels = (labels: Record<string, string>) =>
   Object.entries(labels)
     .map(([k, v]) => `${k}=${v}`)
     .join('\n')
+
+/** "48 KB" / "1.2 MB" for file sizes. */
+export function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  const kb = bytes / 1024
+  if (kb < 1024) return `${kb < 10 ? kb.toFixed(1) : Math.round(kb)} KB`
+  return `${(kb / 1024).toFixed(1)} MB`
+}

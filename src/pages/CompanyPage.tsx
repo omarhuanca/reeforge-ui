@@ -49,15 +49,14 @@ export function CompanyPage() {
         </div>
         {/* One primary action, and it follows the situation. */}
         <div className="row">
-          <button className={`rf-btn ${needsCertificate ? 'rf-btn--ghost' : 'rf-btn--secondary'}`} onClick={() => setRenaming(true)}>Rename company</button>
+          <button className="rf-btn rf-btn--secondary" onClick={() => setRenaming(true)}>Rename company</button>
           {needsCertificate && <button className="rf-btn rf-btn--primary" onClick={() => setUploading(true)}>Upload certificate</button>}
         </div>
       </div>
 
       {needsCertificate && (
-        <div className="rf-alert rf-alert--warning rf-alert--action">
-          <div className="rf-alert__body"><strong>No usable certificate.</strong> Upload a valid TaxCore certificate before invoices can be fiscalized.</div>
-          <button className="rf-btn rf-btn--secondary rf-btn--sm" onClick={() => setUploading(true)}>Upload certificate</button>
+        <div className="rf-alert rf-alert--warning">
+          <div><strong>No usable certificate.</strong> Upload a valid TaxCore certificate before invoices can be fiscalized.</div>
         </div>
       )}
 

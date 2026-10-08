@@ -1,55 +1,41 @@
-import { useEffect, useId, useRef, useState } from 'react'
 import { useAuth } from '../authContext'
-import { useTheme } from '../theme'
+import { setPref, useThemePref, type ThemePref } from '../theme'
+import { IconLogout } from './icons'
+import { Menu } from './Menu'
 
-/** Avatar button with a popover: theme and sign out live here, not loose in the top bar. */
+const THEMES: Array<{ value: ThemePref; label: string }> = [
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+  { value: 'system', label: 'System' },
+]
+
+/** Avatar button with the account menu: who is signed in, theme (Light / Dark / System) and Sign out. */
 export function UserMenu() {
   const { signOut } = useAuth()
-  const { theme, toggle } = useTheme()
-  const [open, setOpen] = useState(false)
-  const root = useRef<HTMLDivElement>(null)
-  const menuId = useId()
-
-  useEffect(() => {
-    if (!open) return
-    const onDown = (e: MouseEvent) => {
-      if (!root.current?.contains(e.target as Node)) setOpen(false)
-    }
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false)
-    }
-    document.addEventListener('mousedown', onDown)
-    document.addEventListener('keydown', onKey)
-    return () => {
-      document.removeEventListener('mousedown', onDown)
-      document.removeEventListener('keydown', onKey)
-    }
-  }, [open])
+  const pref = useThemePref()
 
   return (
-    <div className="user-menu" ref={root}>
-      <button
-        className="rf-avatar user-menu__trigger"
-        aria-label="User menu"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-controls={menuId}
-        title="Admin"
-        onClick={() => setOpen((v) => !v)}
-      >
-        AD
-      </button>
-      {open && (
-        <div className="user-menu__panel" id={menuId} role="menu">
-          <div className="user-menu__who rf-sm">Signed in as <strong>Admin</strong></div>
-          <button role="menuitem" className="user-menu__item" onClick={toggle}>
-            {theme === 'dark' ? '☀ Light mode' : '☾ Dark mode'}
+    <Menu label="Account menu" buttonClass="rf-avatar-btn" trigger={<span className="rf-avatar" title="Admin">AD</span>}>
+      {(close) => (
+        <>
+          <div className="rf-menu__label">Signed in as <strong>Admin</strong></div>
+          <div className="rf-menu__sep" role="separator" />
+          <div className="rf-menu__label">Theme</div>
+          <div className="rf-menu__section">
+            <div className="rf-segmented" role="group" aria-label="Theme">
+              {THEMES.map((t) => (
+                <button key={t.value} type="button" aria-pressed={pref === t.value} onClick={() => setPref(t.value)}>
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="rf-menu__sep" role="separator" />
+          <button type="button" className="rf-menu__item" role="menuitem" onClick={() => { close(); void signOut() }}>
+            <IconLogout />Sign out
           </button>
-          <button role="menuitem" className="user-menu__item" onClick={() => { setOpen(false); void signOut() }}>
-            Sign out
-          </button>
-        </div>
+        </>
       )}
-    </div>
+    </Menu>
   )
 }

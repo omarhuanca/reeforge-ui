@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { daysUntil, formatVT, parseTaxLabels, stringifyTaxLabels } from './format'
+import { daysUntil, formatBytes, formatVT, parseTaxLabels, stringifyTaxLabels } from './format'
 
 describe('format', () => {
   it('formats vatu with space thousands and no decimals', () => {
@@ -18,5 +18,12 @@ describe('format', () => {
     const labels = parseTaxLabels('OUTPUT=A\n EXEMPTOUTPUT = B \n\nbad')
     expect(labels).toEqual({ OUTPUT: 'A', EXEMPTOUTPUT: 'B' })
     expect(parseTaxLabels(stringifyTaxLabels(labels))).toEqual(labels)
+  })
+
+  it('formats file sizes', () => {
+    expect(formatBytes(512)).toBe('512 B')
+    expect(formatBytes(2048)).toBe('2.0 KB')
+    expect(formatBytes(48 * 1024)).toBe('48 KB')
+    expect(formatBytes(1.5 * 1024 * 1024)).toBe('1.5 MB')
   })
 })
