@@ -1,6 +1,7 @@
 import { useAuth } from '../authContext'
 import { setPref, useThemePref, type ThemePref } from '../theme'
 import { IconLogout } from './icons'
+import { LangSwitch } from './LangSwitch'
 import { Menu } from './Menu'
 
 const THEMES: Array<{ value: ThemePref; label: string }> = [
@@ -20,6 +21,11 @@ export function UserMenu() {
         <>
           <div className="rf-menu__label">Signed in as <strong>Admin</strong></div>
           <div className="rf-menu__sep" role="separator" />
+          {/* Under 900px the top bar hides the language switcher, so it lives here. */}
+          <div className="menu-only-mobile">
+            <div className="rf-menu__label">Language</div>
+            <div className="rf-menu__section"><LangSwitch /></div>
+          </div>
           <div className="rf-menu__label">Theme</div>
           <div className="rf-menu__section">
             <div className="rf-segmented" role="group" aria-label="Theme">

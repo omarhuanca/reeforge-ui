@@ -40,6 +40,11 @@ export const IconEyeOff = () => (
     <path d="M3 3l18 18M10.6 5.1A9.7 9.7 0 0112 5c6.4 0 10 7 10 7a17 17 0 01-3.2 4M6.5 6.5A17 17 0 002 12s3.6 7 10 7a9.6 9.6 0 004-.9M9.9 9.9a3 3 0 004.2 4.2" />
   </Svg>
 )
+export const IconMenu = () => (
+  <Svg>
+    <path d="M4 7h16M4 12h16M4 17h16" />
+  </Svg>
+)
 export const IconLogout = () => (
   <Svg>
     <path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10" />

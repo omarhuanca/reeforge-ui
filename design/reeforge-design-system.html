@@ -583,9 +583,10 @@ dialog.rf-modal::backdrop { background: rgba(7, 29, 48, 0.45); -webkit-backdrop-
    <div class="rf-menu-wrap"><button aria-haspopup="menu" aria-expanded="false" aria-controls="m">…</button>
    <div class="rf-menu" id="m" role="menu" hidden>…</div></div>. Opens below, aligned right.
    Esc and outside click close it; focus moves to the first item. Destructive items go last,
-   after a separator, in danger color, and still confirm in a modal. */
+   after a separator, in danger color, and still confirm in a modal.
+   Opaque on purpose: a translucent menu shows the buttons under it as blurred blobs. */
 .rf-menu-wrap { position: relative; display: inline-block; }
-.rf-menu { position: absolute; top: calc(100% + 4px); right: 0; z-index: 30; min-width: 200px; padding: var(--rf-space-1); border: 1px solid var(--rf-border); border-radius: var(--rf-radius-md); background: var(--rf-glass-bg-strong); -webkit-backdrop-filter: blur(var(--rf-glass-blur)) saturate(160%); backdrop-filter: blur(var(--rf-glass-blur)) saturate(160%); box-shadow: var(--rf-shadow-popover); text-align: left; animation: rf-fade-in var(--rf-dur-fast) var(--rf-ease-out); }
+.rf-menu { position: absolute; top: calc(100% + 4px); right: 0; z-index: 30; min-width: 200px; padding: var(--rf-space-1); border: 1px solid var(--rf-border); border-radius: var(--rf-radius-md); background: var(--rf-surface); box-shadow: var(--rf-shadow-popover); text-align: left; animation: rf-fade-in var(--rf-dur-fast) var(--rf-ease-out); }
 .rf-menu[hidden] { display: none; }
 /* Opens upward when there is no room below (last rows of a scrolling table) */
 .rf-menu--up { top: auto; bottom: calc(100% + 4px); }
@@ -640,7 +641,7 @@ dialog.rf-modal::backdrop { background: rgba(7, 29, 48, 0.45); -webkit-backdrop-
 /* ---------- Responsive ---------- */
 @media (max-width: 900px) {
   .rf-shell { grid-template-columns: 1fr; }
-  .rf-sidebar { position: fixed; top: 0; bottom: 0; left: 0; width: min(300px, 85vw); z-index: 40; transform: translateX(-102%); transition: transform var(--rf-dur-base) var(--rf-ease-out); background: var(--rf-glass-bg-strong); box-shadow: var(--rf-shadow-modal); }
+  .rf-sidebar { position: fixed; top: 0; bottom: 0; left: 0; width: min(300px, 85vw); z-index: 40; transform: translateX(-102%); transition: transform var(--rf-dur-base) var(--rf-ease-out); background: var(--rf-surface); -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: var(--rf-shadow-modal); }
   .rf-sidebar[data-open="true"] { transform: none; }
   .rf-drawer-backdrop { display: block; position: fixed; inset: 0; z-index: 39; background: rgba(7, 29, 48, 0.45); opacity: 0; pointer-events: none; transition: opacity var(--rf-dur-base); }
   .rf-sidebar[data-open="true"] + .rf-drawer-backdrop { opacity: 1; pointer-events: auto; }
