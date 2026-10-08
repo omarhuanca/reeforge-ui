@@ -40,7 +40,7 @@ export function CompaniesPage() {
                   <td>{c.has_usable_certificate ? <Badge cls="rf-badge--success">Valid</Badge> : <Badge cls="rf-badge--warning">Needs setup</Badge>}</td>
                   <td>{formatDate(c.created_at)}</td>
                   <td className="rf-col-num">
-                    {!c.has_usable_certificate && <Link className="rf-btn rf-btn--secondary rf-btn--sm" to={`/companies/${c.id}?tab=certificates`}>Upload certificate</Link>}{' '}
+                    {!c.has_usable_certificate && <Link className="rf-btn rf-btn--secondary rf-btn--sm" to={`/companies/${c.id}?upload=1`}>Upload certificate</Link>}{' '}
                     <button className="rf-btn rf-btn--danger-ghost rf-btn--sm" onClick={() => setDeleting(c)}>Delete company</button></td>
                 </tr>
               ))}

@@ -3,6 +3,7 @@ import { useAuth } from '../authContext'
 import { errorMessage } from '../api/client'
 import { Field } from '../components/ui'
 import { ThemeToggle } from '../components/ThemeToggle'
+import { LangSwitch } from '../components/LangSwitch'
 
 export function LoginPage() {
   const { signIn } = useAuth()
@@ -26,7 +27,7 @@ export function LoginPage() {
 
   return (
     <div className="login">
-      <div style={{ position: 'fixed', top: 16, right: 16 }}><ThemeToggle /></div>
+      <div className="row" style={{ position: 'fixed', top: 16, right: 16 }}><LangSwitch /><ThemeToggle /></div>
       <form className="login__card rf-panel rf-panel__body form" onSubmit={submit}>
         <h1 style={{ margin: 0 }}>Sign in to Reeforge Finance</h1>
         <Field label="Email" error={error}>

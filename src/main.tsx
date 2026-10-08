@@ -8,6 +8,9 @@ import '../design/components.css'
 import './app.css'
 import { AuthProvider } from './auth'
 import { App } from './App'
+import { initLang } from './lang'
+
+initLang()
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 15_000, refetchOnWindowFocus: false, retry: 1 } },

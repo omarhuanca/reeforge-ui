@@ -52,6 +52,7 @@
   --rf-info: #0E7490;
   --rf-info-bg: #E0F2F6;
   --rf-info-border: #B3DEE8;
+  --rf-sandbox-line: #E0A82E;
 
   /* ---- Charts (categorical, in this order) ---- */
   --rf-chart-1: #0C6496;
@@ -192,6 +193,7 @@
     --rf-info: #5BC6DC;
     --rf-info-bg: #0E2E36;
     --rf-info-border: #1A4D58;
+    --rf-sandbox-line: #F2B84B;
     --rf-chart-1: #3A9FD8;
     --rf-chart-2: #5BC6DC;
     --rf-chart-3: #E0B54A;
@@ -257,6 +259,7 @@
   --rf-info: #5BC6DC;
   --rf-info-bg: #0E2E36;
   --rf-info-border: #1A4D58;
+  --rf-sandbox-line: #F2B84B;
   --rf-chart-1: #3A9FD8;
   --rf-chart-2: #5BC6DC;
   --rf-chart-3: #E0B54A;

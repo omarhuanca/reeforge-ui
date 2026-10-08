@@ -239,7 +239,7 @@
         <tr><td>Invoice</td><td><div class="ds-row"><span class="rf-badge rf-badge--success">Fiscalized</span><span class="rf-badge rf-badge--warning">Pending</span><span class="rf-badge rf-badge--danger">Failed</span></div></td></tr>
         <tr><td>Certificate</td><td><div class="ds-row"><span class="rf-badge rf-badge--success">Valid</span><span class="rf-badge rf-badge--warning">Expires in 21 days</span><span class="rf-badge rf-badge--danger">Revoked</span><span class="rf-badge rf-badge--neutral">Expired</span></div></td></tr>
         <tr><td>Xero connection</td><td><div class="ds-row"><span class="rf-badge rf-badge--success">Connected</span><span class="rf-badge rf-badge--warning">Needs setup</span><span class="rf-badge rf-badge--neutral">Not connected</span></div></td></tr>
-        <tr><td>TaxCore environment</td><td><div class="ds-row"><span class="rf-badge rf-badge--sandbox rf-badge--plain">Sandbox</span><span class="rf-badge rf-badge--production rf-badge--plain">Production</span></div></td></tr>
+        <tr><td>TaxCore environment</td><td><div class="ds-row"><span class="rf-badge rf-badge--sandbox rf-badge--plain" title="Sandbox · test invoices, no legal value">Sandbox</span><span class="rf-badge rf-badge--production rf-badge--plain">Production</span></div></td></tr>
       </tbody>
     </table>
   </div>
@@ -250,7 +250,7 @@
     <div class="rf-alert rf-alert--danger"><i data-i="x"></i><div><strong>3 invoices failed.</strong> TaxCore rejected the tax label "C". Map it in Xero settings, then retry. <a class="rf-link" href="#">Open Xero settings</a></div></div>
   </div>
   <ul class="ds-rules">
-    <li><b>Sandbox</b> is never subtle: amber badge in the top bar plus a striped line across the top of every page.</li>
+    <li><b>Sandbox</b> stays visible without shouting: amber badge in the top bar (tooltip "Sandbox · test invoices, no legal value") plus a thin solid amber line across the top of every page.</li>
     <li><b>Error copy</b>: what happened, then what to do. Never show a raw TaxCore error code alone; put it in a details row.</li>
   </ul>
 </section>
@@ -354,7 +354,7 @@
             <button class="rf-company-switcher" aria-label="Switch company"><span class="rf-avatar rf-avatar--company">TC</span><span style="min-width:0"><span class="rf-company-switcher__name">Tanna Coffee Co.</span><span class="rf-company-switcher__meta">Certificate 5VPJ3NC7</span></span><i data-i="chevron"></i></button>
           </div>
           <div class="rf-topbar__end">
-            <span class="rf-badge rf-badge--sandbox rf-badge--plain">Sandbox</span>
+            <span class="rf-badge rf-badge--sandbox rf-badge--plain" title="Sandbox · test invoices, no legal value">Sandbox</span>
             <div class="rf-lang rf-hide-mobile" role="group" aria-label="Language"><button aria-pressed="true">EN</button><button>BI</button></div>
             <button class="rf-btn rf-btn--ghost rf-icon-btn rf-hide-mobile" aria-label="Search"><i data-i="search"></i></button>
             <span class="rf-avatar" title="Raquel M. (you)">RM</span>
@@ -416,7 +416,7 @@
 <section class="ds-section" id="overlays">
   <header><h2 class="rf-h1">Modals and toasts</h2><p>Modals only for confirmations and short focused tasks. Everything else happens inline or on a page.</p></header>
   <div class="ds-grid ds-cols-2">
-    <div class="rf-overlay" style="border-radius:var(--rf-radius-lg);padding:var(--rf-space-10) var(--rf-space-6);display:grid;place-items:center">
+    <div class="rf-overlay rf-overlay--inline">
       <div class="rf-modal" role="dialog" aria-labelledby="m1">
         <div class="rf-modal__head"><h2 class="rf-h2" id="m1">Delete Tanna Coffee Co.?</h2></div>
         <div class="rf-modal__body">Its certificate, Xero connection and 1 304 invoice records will be permanently deleted. Fiscalized invoices stay valid at TaxCore.</div>
@@ -424,9 +424,16 @@
       </div>
     </div>
     <div class="ds-grid" style="align-content:center;justify-items:start">
+      <button class="rf-btn rf-btn--danger" id="open-modal">Open the real modal</button>
+      <dialog class="rf-modal" id="real-modal" aria-labelledby="m2">
+        <div class="rf-modal__head"><h2 class="rf-h2" id="m2">Delete Tanna Coffee Co.?</h2></div>
+        <div class="rf-modal__body">Its certificate, Xero connection and 1 304 invoice records will be permanently deleted. Fiscalized invoices stay valid at TaxCore.</div>
+        <form method="dialog" class="rf-modal__foot"><button class="rf-btn rf-btn--secondary" value="cancel" autofocus>Cancel</button><button class="rf-btn rf-btn--danger" value="delete">Delete company</button></form>
+      </dialog>
       <div class="rf-toast"><i data-i="check"></i>Invoice POS1-2026-000125 fiscalized</div>
       <div class="rf-toast"><i data-i="check"></i>Certificate uploaded · valid until 13 Jul 2029</div>
-      <ul class="ds-rules"><li><b>Toasts</b> confirm a finished action in past tense, disappear after 5s, and never carry errors (errors stay on the page).</li></ul>
+      <ul class="ds-rules"><li><b>The box on the left is only a display</b> (<code class="rf-mono">rf-overlay--inline</code>). In the product a modal always opens above everything: use <code class="rf-mono">&lt;dialog class="rf-modal"&gt;</code> with <code class="rf-mono">showModal()</code>. Click the button above to see it.</li>
+        <li><b>Toasts</b> confirm a finished action in past tense, disappear after 5s, and never carry errors (errors stay on the page).</li></ul>
     </div>
   </div>
 </section>
@@ -553,6 +560,10 @@ document.getElementById("pseudo-btn").addEventListener("click", e => {
     });
   });
 });
+
+const realModal = document.getElementById("real-modal");
+document.getElementById("open-modal").addEventListener("click", () => realModal.showModal());
+realModal.addEventListener("click", e => { if (e.target === realModal) realModal.close(); });
 
 renderSwatches(); renderChart(); addEventListener("resize", renderChart);
 </script>
