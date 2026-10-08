@@ -24,6 +24,10 @@ button.rf-tab[aria-selected="true"] { border-bottom-color: var(--rf-primary); }
 
 a.rf-btn { text-decoration: none; }
 
+/* Language row of the account menu: only where the top bar hides the switcher (design breakpoint 900px). */
+.menu-only-mobile { display: none; }
+@media (max-width: 900px) { .menu-only-mobile { display: block; } }
+
 /* Visually hidden, still read by screen readers (e.g. the actions column header). */
 .rf-sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
