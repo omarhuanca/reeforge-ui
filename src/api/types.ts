@@ -28,6 +28,12 @@ export interface Certificate {
   usable: boolean
 }
 
+export interface DeleteCertificateResult {
+  message: string
+  usable_certificates: number
+  warning: string | null
+}
+
 export type InvoiceStatus = 'pending' | 'fiscalized' | 'failed'
 
 export interface Invoice {
