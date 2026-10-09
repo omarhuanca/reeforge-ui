@@ -3,6 +3,7 @@ import { api, ApiError } from './client'
 import type {
   Certificate,
   Company,
+  DeleteCertificateResult,
   Invoice,
   NewToken,
   Paginated,
@@ -60,6 +61,21 @@ export function useUploadCertificate(companyId: number) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['certificates', companyId] })
       qc.invalidateQueries({ queryKey: ['companies'] })
+      qc.invalidateQueries({ queryKey: ['company', companyId] })
+    },
+  })
+}
+
+/** nexo-bk only deletes a certificate that never signed an invoice (409 otherwise). */
+export function useDeleteCertificate(companyId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (certificateId: number) =>
+      api<DeleteCertificateResult>(`/companies/${companyId}/certificates/${certificateId}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['certificates', companyId] })
+      qc.invalidateQueries({ queryKey: ['companies'] })
+      qc.invalidateQueries({ queryKey: ['company', companyId] })
     },
   })
 }

@@ -87,7 +87,7 @@ export function CompanyPage() {
       </div>
 
       {tab === 'invoices' && <InvoicesTab companyId={id} />}
-      {tab === 'certificates' && <CertificatesTab companyId={id} onUpload={() => setUploading(true)} />}
+      {tab === 'certificates' && <CertificatesTab companyId={id} onUpload={() => setUploading(true)} onDeleted={setToast} />}
       {tab === 'xero' && <XeroTab companyId={id} />}
 
       {renaming && <CompanyForm company={company} onClose={() => setRenaming(false)} />}
