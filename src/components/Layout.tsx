@@ -1,5 +1,6 @@
 import { useEffect, useId, useState, type ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { Brand } from './BrandMark'
 import { IconMenu } from './icons'
 import { LangSwitch } from './LangSwitch'
 import { UserMenu } from './UserMenu'
@@ -28,7 +29,7 @@ export function Layout({ children }: { children: ReactNode }) {
       {sandbox && <div className="rf-sandbox-strip rf-above-fluid" />}
       <div className="rf-shell rf-above-fluid">
         <aside id={sidebarId} className="rf-sidebar" data-open={drawer} aria-label="Main navigation">
-          <div className="rf-sidebar__brand">Reeforge <span>Finance</span></div>
+          <Brand />
           <nav>
             <Link to="/" className="rf-nav-item" aria-current={companiesActive ? 'page' : undefined} onClick={() => setDrawer(false)}>
               Companies

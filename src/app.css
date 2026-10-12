@@ -37,3 +37,9 @@ a.rf-btn { text-decoration: none; }
 /* Red count next to a tab label (a problem shows once where you navigate). */
 .rf-tab__count { margin-left: 6px; font-size: var(--rf-text-xs); font-weight: 600; color: var(--rf-danger); font-variant-numeric: tabular-nums; }
 button.rf-link { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; text-decoration: underline; }
+
+/* The brand above the login form sits flush, like in design/preview.html. */
+.login__brand { padding: 0; }
+
+/* Inputs fill the card instead of overflowing it (padding and border count inside the width). */
+.login__card .rf-input { box-sizing: border-box; width: 100%; }
