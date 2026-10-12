@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { errorMessage } from '../api/client'
 import { useCreateInvoice, useInvoice, useInvoiceCounts, useInvoices } from '../api/hooks'
+import { asSentence, taxCoreRejection } from '../api/taxcore'
 import type { Invoice, InvoiceStatus } from '../api/types'
 import { IconMore, IconTrash } from '../components/icons'
 import { Menu } from '../components/Menu'
@@ -167,10 +169,38 @@ function CreateInvoice({ companyId, onClose }: { companyId: number; onClose: () 
         <p className="rf-muted rf-sm" style={{ margin: 0 }}>
           Sends a real invoice to TaxCore for this company. Resending the same <span className="rf-mono">external_id</span> with the same data returns the saved invoice.
         </p>
-        <Field label="Invoice JSON" error={parseError || (create.error ? (create.error as Error).message : undefined)}>
+        <Field label="Invoice JSON" error={parseError || undefined}>
           <textarea className="rf-textarea rf-input--mono" rows={16} value={text} onChange={(e) => setText(e.target.value)} spellCheck={false} />
         </Field>
+        {create.isError && <CreateFailure error={create.error} />}
       </div>
     </Modal>
+  )
+}
+
+/** Says why the invoice was not signed and what to do next. */
+function CreateFailure({ error }: { error: unknown }) {
+  const rejection = taxCoreRejection(error)
+
+  if (!rejection) {
+    return <div className="rf-alert rf-alert--danger" role="alert"><div>{errorMessage(error)}</div></div>
+  }
+
+  if (rejection.retryable) {
+    return (
+      <div className="rf-alert rf-alert--warning" role="alert">
+        <div>
+          <strong>TaxCore did not answer.</strong> {asSentence(rejection.message)} It may have been signed, so send the same data again to retry; do not change it.
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="rf-alert rf-alert--danger" role="alert">
+      <div>
+        <strong>TaxCore rejected this invoice.</strong> {asSentence(rejection.message)} Nothing was signed. Fix the data and send it again, or delete it from the Failed list.
+      </div>
+    </div>
   )
 }
