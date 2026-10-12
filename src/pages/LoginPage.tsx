@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useAuth } from '../authContext'
 import { errorMessage } from '../api/client'
+import { Brand } from '../components/BrandMark'
 import { Field } from '../components/ui'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { LangSwitch } from '../components/LangSwitch'
@@ -29,7 +30,8 @@ export function LoginPage() {
     <div className="login">
       <div className="row" style={{ position: 'fixed', top: 16, right: 16 }}><LangSwitch /><ThemeToggle /></div>
       <form className="login__card rf-panel rf-panel__body form" onSubmit={submit}>
-        <h1 style={{ margin: 0 }}>Sign in to Reeforge Finance</h1>
+        <Brand className="login__brand" />
+        <h1 style={{ margin: 0 }}>Sign in</h1>
         <Field label="Email" error={error}>
           <input className="rf-input" type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} aria-invalid={!!error} />
         </Field>
