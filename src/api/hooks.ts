@@ -131,7 +131,8 @@ export function useCreateInvoice(companyId: number) {
   return useMutation({
     mutationFn: (body: unknown) =>
       api<{ data: Invoice }>(`/companies/${companyId}/invoices`, { method: 'POST', body }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['invoices', companyId] }),
+    // Also after a failure: a rejected invoice is saved as Failed and must show up in the list.
+    onSettled: () => qc.invalidateQueries({ queryKey: ['invoices', companyId] }),
   })
 }
 

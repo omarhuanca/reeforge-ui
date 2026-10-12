@@ -13,6 +13,8 @@ export class ApiError extends Error {
     public status: number,
     message: string,
     public errors: Record<string, string[]> = {},
+    /** The parsed JSON body, for responses that are not Laravel errors (e.g. a failed invoice sent as 422/503). */
+    public body: unknown = null,
   ) {
     super(message)
   }
@@ -45,7 +47,7 @@ export async function api<T = unknown>(
 
   if (!res.ok) {
     if (res.status === 401 && auth) onUnauthorized()
-    throw new ApiError(res.status, json?.message ?? `Request failed (${res.status})`, json?.errors ?? {})
+    throw new ApiError(res.status, json?.message ?? `Request failed (${res.status})`, json?.errors ?? {}, json)
   }
   return json as T
 }
