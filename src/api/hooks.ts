@@ -109,6 +109,16 @@ export const useInvoiceCounts = (companyId: number) =>
       >,
   })
 
+/** nexo-bk only deletes an invoice TaxCore rejected for good: it was never signed (409 otherwise). */
+export function useDeleteInvoice(companyId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (invoiceId: number) => api(`/companies/${companyId}/invoices/${invoiceId}`, { method: 'DELETE' }),
+    // The list and the status counters share the ['invoices', companyId] prefix.
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['invoices', companyId] }),
+  })
+}
+
 export const useInvoice = (companyId: number, id: number | null) =>
   useQuery({
     queryKey: ['invoice', companyId, id],
