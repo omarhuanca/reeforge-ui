@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reeforge coral marks</title>
+<link rel="stylesheet" href="../fonts.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<style>
+  body { margin: 0; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: var(--rf-space-10) var(--rf-gutter) var(--rf-space-16); }
+  .intro { max-width: 720px; margin-bottom: var(--rf-space-10); }
+  .intro p { color: var(--rf-text-muted); font-size: var(--rf-text-body-lg); line-height: 1.6; }
+  .concept { padding: var(--rf-space-8) 0; border-top: 1px solid var(--rf-border); display: grid; gap: var(--rf-space-5); }
+  .concept__head { display: flex; gap: var(--rf-space-4); align-items: baseline; flex-wrap: wrap; }
+  .concept__n { font: 600 var(--rf-text-sm)/1 var(--rf-font-mono); color: var(--rf-text-muted); }
+  .concept__why { color: var(--rf-text-muted); max-width: 72ch; margin: 0; line-height: 1.6; }
+  .row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); gap: var(--rf-space-4); }
+  @media (max-width: 900px) { .row { grid-template-columns: 1fr; } }
+  .tile { border: 1px solid var(--rf-border); border-radius: var(--rf-radius-lg); padding: var(--rf-space-6); display: grid; place-items: center; min-height: 200px; gap: var(--rf-space-4); position: relative; }
+  .tile--light { background: #FFFFFF; }
+  .tile--dark { background: var(--rf-gradient-ocean); border-color: transparent; }
+  .tile__label { position: absolute; top: 10px; left: 12px; font-size: var(--rf-text-xs); color: var(--rf-text-muted); }
+  .tile--dark .tile__label { color: #95A3B2; }
+  .lockup { display: flex; align-items: center; gap: 14px; }
+  .lockup svg { width: 56px; height: 56px; flex: none; }
+  .word { font-family: var(--rf-font-display); font-weight: 600; font-size: 34px; letter-spacing: -0.02em; line-height: 1; color: #121A22; }
+  .word span { font-weight: 500; color: #0C6496; margin-left: 8px; }
+  .tile--dark .word { color: #E6EDF3; }
+  .tile--dark .word span { color: #6CC0EE; }
+  .sizes { display: flex; align-items: end; gap: var(--rf-space-5); }
+  .appicon { width: 72px; height: 72px; border-radius: 18px; background: linear-gradient(145deg, #1A7DB5 0%, #0C6496 55%, #0B4F7A 100%); display: grid; place-items: center; box-shadow: 0 6px 16px rgba(12, 34, 56, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2); }
+  .appicon svg { width: 44px; height: 44px; }
+  .fav { display: grid; gap: 6px; justify-items: center; font-size: 11px; color: var(--rf-text-muted); }
+  .fav svg { display: block; }
+  .tab { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px 8px 0 0; background: #E6EBF0; font: 12px var(--rf-font-sans); color: #121A22; }
+</style>
+</head>
+<body class="rf-root">
+<div class="wrap">
+  <div class="intro">
+    <h1 class="rf-display">Coral on the circle</h1>
+    <p>A conceptual coral on a gradient circle: the circle is the sea seen from above, light lagoon at the surface turning to deep ocean; the coral is the reef growing in it; the ember tip is the forge. In one colour the circle turns solid and the coral is cut out in white, which works as a stamp.</p>
+  </div>
+  <div id="concepts"></div>
+</div>
+
+<script>
+const OCEAN = ["#1A7DB5", "#0C6496", "#0B4F7A"], EMBER = "#E0592A", LAGOON = "#3AA6B9";
+let uid = 0;
+
+// Each concept draws on a 64x64 grid. c = { main, accent, defs } for colours.
+// Circle background: light lagoon at the surface, deep ocean below.
+const disc = c => { const id = "d" + (uid++); return c.disc
+  ? `<defs><linearGradient id="${id}" x1=".2" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#4FB8C9"/><stop offset=".5" stop-color="#1A7DB5"/><stop offset="1" stop-color="#0B4F7A"/></linearGradient></defs><circle cx="32" cy="32" r="30" fill="url(#${id})"/>`
+  : `<circle cx="32" cy="32" r="30" fill="${c.flat}"/>`; };
+const clipDisc = () => { const id = "cd" + (uid++); return [id, `<clipPath id="${id}"><circle cx="32" cy="32" r="30"/></clipPath>`]; };
+const CONCEPTS = [
+  {
+    name: "Coral · staghorn",
+    why: "A branch of staghorn coral growing up from the bottom edge of the circle, as if rising from the seabed into the light. Its trunk is cut by the edge, so the coral belongs to the circle instead of floating in it. The highest tip is the ember: the newest growth, the forge, the next app. Branching also says hub: one root, several products.",
+    draw: c => { const [id, cp] = clipDisc(); return disc(c) + `<defs>${cp}</defs><g clip-path="url(#${id})" fill="none" stroke="${c.coral}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M31 66C31 54 30 47 27 42C24 37 23 31 23 23"/><path d="M28.5 44C33 40 38 36 38.5 27"/><path d="M38.5 32C42 29.5 44.5 26 44.5 21"/><path d="M24.5 33C21.5 30.5 18.5 28 18.5 22"/></g>
+        <circle cx="44.5" cy="17.5" r="3.6" fill="${c.accent}"/>`; }
+  },
+  {
+    name: "Coral · sea fan",
+    why: "A sea fan, the flat lace-like coral that opens towards the current. Seven ribs from one base, crossed by two arcs: it looks woven and engineered at the same time, reef and structure. The ember sits at the base, the point everything grows from. Calm and very balanced; the arcs echo the circle.",
+    draw: c => { const base = [32, 54], pt = (r, a) => [base[0] + r * Math.cos(a * Math.PI / 180), base[1] + r * Math.sin(a * Math.PI / 180)].map(v => v.toFixed(2));
+      let ribs = ""; for (let a = -150; a <= -30; a += 20) { const [x, y] = pt(36, a); ribs += `<path d="M32 54L${x} ${y}"/>`; }
+      const arc = r => { const [x1, y1] = pt(r, -150), [x2, y2] = pt(r, -30); return `<path d="M${x1} ${y1}A${r} ${r} 0 0 1 ${x2} ${y2}"/>`; };
+      const [id, cp] = clipDisc();
+      return disc(c) + `<defs>${cp}</defs><g clip-path="url(#${id})" fill="none" stroke="${c.coral}" stroke-width="2.6" stroke-linecap="round">${ribs}${arc(16)}${arc(27)}</g>
+        <circle cx="32" cy="54" r="4.2" fill="${c.accent}"/>`; }
+  },
+  {
+    name: "Coral · polyps",
+    why: "An abstract coral built from rounded polyps of different sizes climbing in a curve, like bubble coral, or like a structure being assembled piece by piece (the forge). Modern and soft, it reads as a pattern as much as a coral, and the ember polyp at the top marks progress. The most playful of the three.",
+    draw: c => disc(c) + `<g fill="${c.coral}">
+        <circle cx="31" cy="49" r="5.2"/><circle cx="25" cy="40.5" r="4.6"/><circle cx="36.5" cy="39.5" r="4.2"/><circle cx="22" cy="31" r="3.8"/>
+        <circle cx="31" cy="31.5" r="3.6"/><circle cx="41.5" cy="30.5" r="3.4"/><circle cx="26" cy="23" r="3"/><circle cx="37" cy="22.5" r="2.8"/></g>
+        <circle cx="31.5" cy="15.5" r="3.3" fill="${c.accent}"/>`
+  }
+];
+
+function svg(concept, size, mode) {
+  const id = "g" + (uid++);
+  const defs = mode === "color"
+    ? `<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${OCEAN[0]}"/><stop offset=".55" stop-color="${OCEAN[1]}"/><stop offset="1" stop-color="${OCEAN[2]}"/></linearGradient></defs>` : "";
+  const colors = {
+    color: { disc: true, coral: "#FFFFFF", accent: "#FF8A5C" },
+    light: { disc: true, coral: "#FFFFFF", accent: "#FF8A5C" },
+    white: { disc: false, flat: "rgba(255,255,255,.16)", coral: "#FFFFFF", accent: "#FFB08F" },
+    mono: { disc: false, flat: "#121A22", coral: "#FFFFFF", accent: "#FFFFFF" }
+  }[mode];
+  return `<svg viewBox="0 0 64 64" width="${size}" height="${size}" role="img" aria-label="${concept.name} symbol">${defs}${concept.draw(colors)}</svg>`;
+}
+
+document.getElementById("concepts").innerHTML = CONCEPTS.map((k, i) => `
+  <section class="concept">
+    <div class="concept__head"><span class="concept__n">0${i + 1}</span><h2 class="rf-h1">${k.name}</h2></div>
+    <p class="concept__why">${k.why}</p>
+    <div class="row">
+      <div class="tile tile--light"><span class="tile__label">Lockup</span>
+        <div class="lockup">${svg(k, 56, "color")}<div class="word">Reeforge<span>Finance</span></div></div>
+        <div class="lockup" style="transform:scale(.7)">${svg(k, 56, "mono")}<div class="word">Reeforge</div></div>
+      </div>
+      <div class="tile tile--dark"><span class="tile__label">On ocean</span>
+        <div class="lockup">${svg(k, 56, "light")}<div class="word">Reeforge</div></div>
+      </div>
+      <div class="tile tile--light"><span class="tile__label">App icon and favicons</span>
+        <div class="sizes">
+          <div class="appicon">${svg(k, 44, "white")}</div>
+          <div class="fav">${svg(k, 32, "color")}32px</div>
+          <div class="fav">${svg(k, 16, "color")}16px</div>
+        </div>
+        <div class="tab">${svg(k, 16, "color")}Reeforge Finance</div>
+      </div>
+    </div>
+  </section>`).join("");
+</script>
+</body>
+</html>

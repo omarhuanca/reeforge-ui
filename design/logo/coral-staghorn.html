@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reeforge staghorn coral</title>
+<link rel="stylesheet" href="../fonts.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<style>
+  body { margin: 0; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: var(--rf-space-10) var(--rf-gutter) var(--rf-space-16); }
+  .intro { max-width: 720px; margin-bottom: var(--rf-space-10); }
+  .intro p { color: var(--rf-text-muted); font-size: var(--rf-text-body-lg); line-height: 1.6; }
+  .concept { padding: var(--rf-space-8) 0; border-top: 1px solid var(--rf-border); display: grid; gap: var(--rf-space-5); }
+  .concept__head { display: flex; gap: var(--rf-space-4); align-items: baseline; flex-wrap: wrap; }
+  .concept__n { font: 600 var(--rf-text-sm)/1 var(--rf-font-mono); color: var(--rf-text-muted); }
+  .concept__why { color: var(--rf-text-muted); max-width: 72ch; margin: 0; line-height: 1.6; }
+  .row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); gap: var(--rf-space-4); }
+  @media (max-width: 900px) { .row { grid-template-columns: 1fr; } }
+  .tile { border: 1px solid var(--rf-border); border-radius: var(--rf-radius-lg); padding: var(--rf-space-6); display: grid; place-items: center; min-height: 200px; gap: var(--rf-space-4); position: relative; }
+  .tile--light { background: #FFFFFF; }
+  .tile--dark { background: var(--rf-gradient-ocean); border-color: transparent; }
+  .tile__label { position: absolute; top: 10px; left: 12px; font-size: var(--rf-text-xs); color: var(--rf-text-muted); }
+  .tile--dark .tile__label { color: #95A3B2; }
+  .lockup { display: flex; align-items: center; gap: 14px; }
+  .lockup svg { width: 56px; height: 56px; flex: none; }
+  .word { font-family: var(--rf-font-display); font-weight: 600; font-size: 34px; letter-spacing: -0.02em; line-height: 1; color: #121A22; }
+  .word span { font-weight: 500; color: #0C6496; margin-left: 8px; }
+  .tile--dark .word { color: #E6EDF3; }
+  .tile--dark .word span { color: #6CC0EE; }
+  .sizes { display: flex; align-items: end; gap: var(--rf-space-5); }
+  .appicon { width: 72px; height: 72px; border-radius: 18px; background: linear-gradient(145deg, #1A7DB5 0%, #0C6496 55%, #0B4F7A 100%); display: grid; place-items: center; box-shadow: 0 6px 16px rgba(12, 34, 56, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2); }
+  .appicon svg { width: 44px; height: 44px; }
+  .fav { display: grid; gap: 6px; justify-items: center; font-size: 11px; color: var(--rf-text-muted); }
+  .fav svg { display: block; }
+  .tab { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px 8px 0 0; background: #E6EBF0; font: 12px var(--rf-font-sans); color: #121A22; }
+</style>
+</head>
+<body class="rf-root">
+<div class="wrap">
+  <div class="intro">
+    <h1 class="rf-display">Staghorn coral, refined</h1>
+    <p>Three refinements of the staghorn coral on the gradient circle. Branches now taper from base to tip and end in rounded polyps, and the growth is asymmetric, so the sign reads as living coral rather than a tree or an antler.</p>
+  </div>
+  <div id="concepts"></div>
+</div>
+
+<script>
+const OCEAN = ["#1A7DB5", "#0C6496", "#0B4F7A"], EMBER = "#E0592A", LAGOON = "#3AA6B9";
+let uid = 0;
+
+// Each concept draws on a 64x64 grid. c = { main, accent, defs } for colours.
+// Circle background: light lagoon at the surface, deep ocean below.
+const disc = c => { const id = "d" + (uid++); return c.disc
+  ? `<defs><linearGradient id="${id}" x1=".2" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#4FB8C9"/><stop offset=".5" stop-color="#1A7DB5"/><stop offset="1" stop-color="#0B4F7A"/></linearGradient></defs><circle cx="32" cy="32" r="30" fill="url(#${id})"/>`
+  : `<circle cx="32" cy="32" r="30" fill="${c.flat}"/>`; };
+const clipDisc = () => { const id = "cd" + (uid++); return [id, `<clipPath id="${id}"><circle cx="32" cy="32" r="30"/></clipPath>`]; };
+// Tapered branch: cubic Bezier sampled into short round-capped segments whose width
+// goes from w0 (base) to w1 (tip). Ends with a polyp knob of radius k.
+function branch(p0, c1, c2, p3, w0, w1, color, k) {
+  const N = 14, pt = t => { const u = 1 - t; return [0, 1].map(i => u*u*u*p0[i] + 3*u*u*t*c1[i] + 3*u*t*t*c2[i] + t*t*t*p3[i]); };
+  let d = "";
+  for (let i = 0; i < N; i++) {
+    const a = pt(i / N), b = pt((i + 1) / N), w = (w0 + (w1 - w0) * (i + 0.5) / N).toFixed(2);
+    d += `<path d="M${a[0].toFixed(2)} ${a[1].toFixed(2)}L${b[0].toFixed(2)} ${b[1].toFixed(2)}" stroke-width="${w}"/>`;
+  }
+  const knob = k ? `<circle cx="${p3[0]}" cy="${p3[1]}" r="${k}" fill="${color}" stroke="none"/>` : "";
+  return `<g fill="none" stroke="${color}" stroke-linecap="round">${d}</g>${knob}`;
+}
+const CONCEPTS = [
+  {
+    name: "Staghorn · classic",
+    why: "Five branches of different lengths, thick at the base and thin at the tips, each ending in a rounded polyp. The growth leans to the right like coral reaching for the current. The highest tip is the ember. Reads as living coral, not a tree: the polyp tips and the uneven branching do that work.",
+    draw: c => { const [id, cp] = clipDisc(), W = c.coral; return disc(c) + `<defs>${cp}</defs><g clip-path="url(#${id})">
+        ${branch([31, 66], [31, 56], [30.5, 48], [28, 42], 7.2, 5.6, W)}
+        ${branch([28, 42], [25, 37], [23, 31], [23, 22], 5.6, 3.4, W, 2.6)}
+        ${branch([29, 45], [33, 41], [38, 37], [38.5, 27], 5.2, 3.3, W, 2.5)}
+        ${branch([38, 33], [41.5, 31], [44.5, 27], [45, 20.5], 3.8, 2.8, W)}
+        ${branch([24.5, 34.5], [21.5, 32], [18.5, 29], [18, 23.5], 3.6, 2.6, W, 2.2)}
+        ${branch([34, 39.5], [37, 39.5], [40, 40], [42.5, 37.5], 3.2, 2.4, W, 2.1)}</g>
+        <circle cx="45.2" cy="18.4" r="3.5" fill="${c.accent}"/>`; }
+  },
+  {
+    name: "Staghorn · bold",
+    why: "The same coral reduced to its strongest gesture: one trunk, two main branches and a short stub, all thicker. Less detail, more presence: the best of the three at 16 px and as an app icon, and the easiest to remember and redraw. The ember crowns the right branch.",
+    draw: c => { const [id, cp] = clipDisc(), W = c.coral; return disc(c) + `<defs>${cp}</defs><g clip-path="url(#${id})">
+        ${branch([30, 66], [30, 56], [29.5, 49], [28, 43], 9, 7, W)}
+        ${branch([28, 43], [24.5, 38], [22, 32], [22, 23], 7, 4.6, W, 3.3)}
+        ${branch([29, 46], [34, 42], [40, 37], [41, 25], 6.4, 4.4, W)}
+        ${branch([24, 36], [21, 35], [18.5, 34], [17, 31], 4.4, 3.4, W, 2.6)}</g>
+        <circle cx="41.4" cy="21" r="4.2" fill="${c.accent}"/>`; }
+  },
+  {
+    name: "Staghorn · atoll",
+    why: "The classic coral, slightly smaller, inside a fine ring of reef: the atoll you chose earlier comes back as a thin line, open at the top right where the ember tip grows out beyond it. Reef, lagoon and forge in one sign, and growth that breaks out of its own frame: reforge. The richest of the three; the ring fades at 16 px, which is fine because the coral still reads.",
+    draw: c => { const [id, cp] = clipDisc(), W = c.coral, r = 24.5, p = a => [32 + r * Math.cos(a * Math.PI / 180), 32 + r * Math.sin(a * Math.PI / 180)].map(v => v.toFixed(2));
+      const [x1, y1] = p(-35), [x2, y2] = p(-75);
+      return disc(c) + `<defs>${cp}</defs>
+        <path d="M${x1} ${y1}A${r} ${r} 0 1 1 ${x2} ${y2}" fill="none" stroke="${c.ring}" stroke-width="1.8" stroke-linecap="round"/>
+        <g clip-path="url(#${id})"><g transform="translate(4.2 5.4) scale(.86)">
+        ${branch([31, 66], [31, 56], [30.5, 48], [28, 42], 7.2, 5.6, W)}
+        ${branch([28, 42], [25, 37], [23, 31], [23, 22], 5.6, 3.4, W, 2.6)}
+        ${branch([29, 45], [33, 41], [38, 37], [38.5, 27], 5.2, 3.3, W, 2.5)}
+        ${branch([38, 33], [41.5, 31], [44.5, 27], [45, 20.5], 3.8, 2.8, W)}
+        ${branch([24.5, 34.5], [21.5, 32], [18.5, 29], [18, 23.5], 3.6, 2.6, W, 2.2)}
+        ${branch([34, 39.5], [37, 39.5], [40, 40], [42.5, 37.5], 3.2, 2.4, W, 2.1)}</g></g>
+        <circle cx="43.1" cy="21.2" r="3.3" fill="${c.accent}"/>`; }
+  }
+];
+
+function svg(concept, size, mode) {
+  const id = "g" + (uid++);
+  const defs = mode === "color"
+    ? `<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${OCEAN[0]}"/><stop offset=".55" stop-color="${OCEAN[1]}"/><stop offset="1" stop-color="${OCEAN[2]}"/></linearGradient></defs>` : "";
+  const colors = {
+    color: { disc: true, coral: "#FFFFFF", accent: "#FF8A5C", ring: "rgba(255,255,255,.45)" },
+    light: { disc: true, coral: "#FFFFFF", accent: "#FF8A5C", ring: "rgba(255,255,255,.45)" },
+    white: { disc: false, flat: "rgba(255,255,255,.16)", coral: "#FFFFFF", accent: "#FFB08F", ring: "rgba(255,255,255,.4)" },
+    mono: { disc: false, flat: "#121A22", coral: "#FFFFFF", accent: "#FFFFFF", ring: "rgba(255,255,255,.4)" }
+  }[mode];
+  return `<svg viewBox="0 0 64 64" width="${size}" height="${size}" role="img" aria-label="${concept.name} symbol">${defs}${concept.draw(colors)}</svg>`;
+}
+
+document.getElementById("concepts").innerHTML = CONCEPTS.map((k, i) => `
+  <section class="concept">
+    <div class="concept__head"><span class="concept__n">0${i + 1}</span><h2 class="rf-h1">${k.name}</h2></div>
+    <p class="concept__why">${k.why}</p>
+    <div class="row">
+      <div class="tile tile--light"><span class="tile__label">Lockup</span>
+        <div class="lockup">${svg(k, 56, "color")}<div class="word">Reeforge<span>Finance</span></div></div>
+        <div class="lockup" style="transform:scale(.7)">${svg(k, 56, "mono")}<div class="word">Reeforge</div></div>
+      </div>
+      <div class="tile tile--dark"><span class="tile__label">On ocean</span>
+        <div class="lockup">${svg(k, 56, "light")}<div class="word">Reeforge</div></div>
+      </div>
+      <div class="tile tile--light"><span class="tile__label">App icon and favicons</span>
+        <div class="sizes">
+          <div class="appicon">${svg(k, 44, "white")}</div>
+          <div class="fav">${svg(k, 32, "color")}32px</div>
+          <div class="fav">${svg(k, 16, "color")}16px</div>
+        </div>
+        <div class="tab">${svg(k, 16, "color")}Reeforge Finance</div>
+      </div>
+    </div>
+  </section>`).join("");
+</script>
+</body>
+</html>

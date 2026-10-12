@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reeforge logo concepts</title>
+<link rel="stylesheet" href="../fonts.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<style>
+  body { margin: 0; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: var(--rf-space-10) var(--rf-gutter) var(--rf-space-16); }
+  .intro { max-width: 720px; margin-bottom: var(--rf-space-10); }
+  .intro p { color: var(--rf-text-muted); font-size: var(--rf-text-body-lg); line-height: 1.6; }
+  .concept { padding: var(--rf-space-8) 0; border-top: 1px solid var(--rf-border); display: grid; gap: var(--rf-space-5); }
+  .concept__head { display: flex; gap: var(--rf-space-4); align-items: baseline; flex-wrap: wrap; }
+  .concept__n { font: 600 var(--rf-text-sm)/1 var(--rf-font-mono); color: var(--rf-text-muted); }
+  .concept__why { color: var(--rf-text-muted); max-width: 72ch; margin: 0; line-height: 1.6; }
+  .row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); gap: var(--rf-space-4); }
+  @media (max-width: 900px) { .row { grid-template-columns: 1fr; } }
+  .tile { border: 1px solid var(--rf-border); border-radius: var(--rf-radius-lg); padding: var(--rf-space-6); display: grid; place-items: center; min-height: 200px; gap: var(--rf-space-4); position: relative; }
+  .tile--light { background: #FFFFFF; }
+  .tile--dark { background: var(--rf-gradient-ocean); border-color: transparent; }
+  .tile__label { position: absolute; top: 10px; left: 12px; font-size: var(--rf-text-xs); color: var(--rf-text-muted); }
+  .tile--dark .tile__label { color: #95A3B2; }
+  .lockup { display: flex; align-items: center; gap: 14px; }
+  .lockup svg { width: 56px; height: 56px; flex: none; }
+  .word { font-family: var(--rf-font-display); font-weight: 600; font-size: 34px; letter-spacing: -0.02em; line-height: 1; color: #121A22; }
+  .word span { font-weight: 500; color: #0C6496; margin-left: 8px; }
+  .tile--dark .word { color: #E6EDF3; }
+  .tile--dark .word span { color: #6CC0EE; }
+  .sizes { display: flex; align-items: end; gap: var(--rf-space-5); }
+  .appicon { width: 72px; height: 72px; border-radius: 18px; background: linear-gradient(145deg, #1A7DB5 0%, #0C6496 55%, #0B4F7A 100%); display: grid; place-items: center; box-shadow: 0 6px 16px rgba(12, 34, 56, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2); }
+  .appicon svg { width: 44px; height: 44px; }
+  .fav { display: grid; gap: 6px; justify-items: center; font-size: 11px; color: var(--rf-text-muted); }
+  .fav svg { display: block; }
+  .tab { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px 8px 0 0; background: #E6EBF0; font: 12px var(--rf-font-sans); color: #121A22; }
+</style>
+</head>
+<body class="rf-root">
+<div class="wrap">
+  <div class="intro">
+    <h1 class="rf-display">Reeforge logo concepts</h1>
+    <p>Four directions, each built from the name: <strong>reef</strong> (the Pacific), <strong>forge</strong> (making technology), <strong>reforge</strong> (things getting better). Each is shown as a lockup with "Finance", on light and on ocean, as an app icon, and at favicon sizes. These are sketches to pick a direction, not final artwork.</p>
+  </div>
+  <div id="concepts"></div>
+</div>
+
+<script>
+const OCEAN = ["#1A7DB5", "#0C6496", "#0B4F7A"], EMBER = "#E0592A", LAGOON = "#3AA6B9";
+let uid = 0;
+
+// Each concept draws on a 64x64 grid. c = { main, accent, defs } for colours.
+const CONCEPTS = [
+  {
+    name: "Atoll",
+    why: "An atoll seen from above: a ring of reef around a lagoon, left open where the ember sits. The ring is the reforge loop (always improving); the ember is the forge, the spark that closes the circle. Calm and round, it reads well tiny and can hold any app name next to it.",
+    draw: c => `<path d="M41.3 51.94 A22 22 0 1 1 51.94 41.3" fill="none" stroke="${c.main}" stroke-width="10" stroke-linecap="round"/>
+                <circle cx="47.56" cy="47.56" r="5.5" fill="${c.accent}"/>`
+  },
+  {
+    name: "Forged R",
+    why: "A monogram R cut like forged metal: a solid stem and bowl in ocean blue, and a leg struck in ember, as if just hammered. The most direct and ownable mark, strong as an app icon. Less about the Pacific, more about the forge.",
+    draw: c => `<path fill-rule="evenodd" fill="${c.main}" d="M12 8h22a15 15 0 0 1 0 30H23v18H12Z M23 18v10h10.5a5 5 0 0 0 0-10Z"/>
+                <path fill="${c.accent}" d="M29 38h12.5l11 18H40Z"/>`
+  },
+  {
+    name: "Rising reef",
+    why: "Three columns rising like a reef growing, or a finance chart going up, with their tops shaped by one ocean swell. Reforge as measurable improvement, reef as the wave. The ember marks the crest. The most \"finance\" of the four, and the one that best fits a hub of business apps.",
+    draw: c => { const id = "clip" + (uid++); return `<defs><clipPath id="${id}"><path d="M4 40 C 16 24, 26 40, 38 24 S 56 6, 62 6 V60 H4 Z"/></clipPath></defs>
+                <g clip-path="url(#${id})" fill="${c.main}"><rect x="8" y="8" width="13" height="50" rx="3"/><rect x="25.5" y="8" width="13" height="50" rx="3"/><rect x="43" y="8" width="13" height="50" rx="3"/></g>
+                <circle cx="52" cy="6.5" r="4.5" fill="${c.accent}"/>`; }
+  },
+  {
+    name: "Coral circuit",
+    why: "A branch of coral drawn like a circuit: one trunk splitting into branches that end in nodes. Living reef and technology in the same line, and the hub idea (one root, several apps). The ember node is the newest branch. More detailed, so it needs care at small sizes.",
+    draw: c => `<g fill="none" stroke="${c.main}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M32 58V14"/><path d="M32 44 18 30V18"/><path d="M32 36 46 22V16"/></g>
+                <circle cx="18" cy="14" r="5" fill="${c.main}"/><circle cx="46" cy="12" r="5" fill="${c.main}"/><circle cx="32" cy="9" r="5.5" fill="${c.accent}"/>`
+  }
+];
+
+function svg(concept, size, mode) {
+  const id = "g" + (uid++);
+  const defs = mode === "color"
+    ? `<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${OCEAN[0]}"/><stop offset=".55" stop-color="${OCEAN[1]}"/><stop offset="1" stop-color="${OCEAN[2]}"/></linearGradient></defs>` : "";
+  const colors = {
+    color: { main: `url(#${id})`, accent: EMBER },
+    light: { main: "#6CC0EE", accent: "#F27A4C" },     // on dark ocean
+    white: { main: "#FFFFFF", accent: "#FFB08F" },     // inside the app icon
+    mono: { main: "#121A22", accent: "#121A22" }       // one colour (fax, stamps, embossing)
+  }[mode];
+  return `<svg viewBox="0 0 64 64" width="${size}" height="${size}" role="img" aria-label="${concept.name} symbol">${defs}${concept.draw(colors)}</svg>`;
+}
+
+document.getElementById("concepts").innerHTML = CONCEPTS.map((k, i) => `
+  <section class="concept">
+    <div class="concept__head"><span class="concept__n">0${i + 1}</span><h2 class="rf-h1">${k.name}</h2></div>
+    <p class="concept__why">${k.why}</p>
+    <div class="row">
+      <div class="tile tile--light"><span class="tile__label">Lockup</span>
+        <div class="lockup">${svg(k, 56, "color")}<div class="word">Reeforge<span>Finance</span></div></div>
+        <div class="lockup" style="transform:scale(.7)">${svg(k, 56, "mono")}<div class="word">Reeforge</div></div>
+      </div>
+      <div class="tile tile--dark"><span class="tile__label">On ocean</span>
+        <div class="lockup">${svg(k, 56, "light")}<div class="word">Reeforge</div></div>
+      </div>
+      <div class="tile tile--light"><span class="tile__label">App icon and favicons</span>
+        <div class="sizes">
+          <div class="appicon">${svg(k, 44, "white")}</div>
+          <div class="fav">${svg(k, 32, "color")}32px</div>
+          <div class="fav">${svg(k, 16, "color")}16px</div>
+        </div>
+        <div class="tab">${svg(k, 16, "color")}Reeforge Finance</div>
+      </div>
+    </div>
+  </section>`).join("");
+</script>
+</body>
+</html>

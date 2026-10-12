@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reeforge logo</title>
+<link rel="icon" href="final/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../fonts.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../components.css">
+<style>
+  body { margin: 0; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: var(--rf-space-10) var(--rf-gutter) var(--rf-space-16); display: grid; gap: var(--rf-space-10); }
+  .lead { max-width: 70ch; color: var(--rf-text-muted); font-size: var(--rf-text-body-lg); line-height: 1.6; margin: var(--rf-space-3) 0 0; }
+  section { display: grid; gap: var(--rf-space-4); }
+  section > p { margin: 0; color: var(--rf-text-muted); max-width: 72ch; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--rf-space-4); }
+  .tile { border: 1px solid var(--rf-border); border-radius: var(--rf-radius-lg); padding: var(--rf-space-8) var(--rf-space-6); display: grid; place-items: center; gap: var(--rf-space-3); min-height: 160px; position: relative; }
+  .tile img { max-width: 100%; height: auto; }
+  .tile small { position: absolute; left: 12px; bottom: 10px; font-size: var(--rf-text-xs); color: var(--rf-text-muted); font-family: var(--rf-font-mono); }
+  .on-white { background: #FFFFFF; }
+  .on-ocean { background: var(--rf-gradient-ocean); border-color: transparent; }
+  .on-ocean small { color: #95A3B2; }
+  .on-ember { background: #E0592A; border-color: transparent; }
+  .on-ember small { color: #FFE6DB; }
+  .space { position: relative; padding: 44px; border: 1px dashed var(--rf-border-strong); border-radius: var(--rf-radius-md); background: repeating-linear-gradient(45deg, transparent 0 8px, color-mix(in srgb, var(--rf-primary) 8%, transparent) 8px 16px); }
+  .space img { display: block; background: #FFFFFF; }
+  .sizes { display: flex; align-items: end; gap: var(--rf-space-6); flex-wrap: wrap; }
+  .sizes figure { margin: 0; display: grid; justify-items: center; gap: 6px; font-size: var(--rf-text-xs); color: var(--rf-text-muted); }
+  .dont { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--rf-space-4); }
+  .dont figure { margin: 0; border: 1px solid var(--rf-border); border-radius: var(--rf-radius-lg); background: #FFFFFF; padding: var(--rf-space-5); display: grid; gap: var(--rf-space-3); justify-items: center; }
+  .dont figcaption { font-size: var(--rf-text-sm); color: var(--rf-text); text-align: center; }
+  .dont figcaption::before { content: "✕ "; color: var(--rf-danger); font-weight: 700; }
+  .files { overflow-x: auto; }
+  code { font-family: var(--rf-font-mono); font-size: .92em; }
+</style>
+</head>
+<body class="rf-root">
+<div class="wrap">
+  <header>
+    <h1 class="rf-display">Reeforge logo</h1>
+    <p class="lead">An atoll seen from above: a ring of reef around a lagoon, left open where the ember sits. The ring is the loop that keeps improving (reforge); the ember is the forge, the spark that closes it. One symbol for the whole hub; each app adds its name after the wordmark.</p>
+  </header>
+
+  <section>
+    <h2 class="rf-h1">Versions</h2>
+    <div class="grid">
+      <div class="tile on-white"><img src="final/reeforge-logo.svg" alt="Reeforge logo" width="260"><small>reeforge-logo.svg</small></div>
+      <div class="tile on-white"><img src="final/reeforge-finance-logo.svg" alt="Reeforge Finance logo" width="320"><small>reeforge-finance-logo.svg</small></div>
+      <div class="tile on-ocean"><img src="final/reeforge-logo-reversed.svg" alt="Reeforge logo, reversed" width="260"><small>reeforge-logo-reversed.svg</small></div>
+      <div class="tile on-ocean"><img src="final/reeforge-finance-logo-reversed.svg" alt="Reeforge Finance logo, reversed" width="320"><small>reeforge-finance-logo-reversed.svg</small></div>
+      <div class="tile on-white"><img src="final/reeforge-logo-black.svg" alt="Reeforge logo, black" width="260"><small>reeforge-logo-black.svg</small></div>
+      <div class="tile on-ember"><img src="final/reeforge-logo-white.svg" alt="Reeforge logo, white" width="260"><small>reeforge-logo-white.svg</small></div>
+    </div>
+    <p>Colour on light backgrounds; reversed (sky ring, light wordmark) on ocean and dark; black or white only when colour is not possible (stamps, embossing, single-colour print, photos).</p>
+  </section>
+
+  <section>
+    <h2 class="rf-h1">Symbol and app icon</h2>
+    <div class="sizes">
+      <figure><img src="final/app-icon.svg" alt="App icon" width="120">App icon</figure>
+      <figure><img src="final/reeforge-symbol.svg" alt="Symbol" width="96">Symbol</figure>
+      <figure><img src="final/reeforge-symbol.svg" alt="" width="48">48 px</figure>
+      <figure><img src="final/reeforge-symbol.svg" alt="" width="32">32 px</figure>
+      <figure><img src="final/reeforge-symbol.svg" alt="" width="16">16 px (minimum)</figure>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="rf-h1">Clear space and minimum size</h2>
+    <p>Keep a clear space around the logo equal to the ring thickness × 2 (about a third of the symbol height). Minimum sizes: symbol 16 px, logo 96 px wide, Reeforge Finance logo 120 px wide.</p>
+    <div><span class="space" style="display:inline-block"><img src="final/reeforge-logo.svg" alt="Logo with clear space" width="260"></span></div>
+  </section>
+
+  <section>
+    <h2 class="rf-h1">Don't</h2>
+    <div class="dont">
+      <figure><img src="final/reeforge-symbol.svg" alt="" width="64" style="transform:rotate(90deg)"><figcaption>Rotate the symbol: the opening always sits bottom right</figcaption></figure>
+      <figure><img src="final/reeforge-logo.svg" alt="" width="180" style="transform:scaleX(1.4)"><figcaption>Stretch or squash it</figcaption></figure>
+      <figure><img src="final/reeforge-symbol.svg" alt="" width="64" style="filter:hue-rotate(140deg)"><figcaption>Recolour it outside the palette</figcaption></figure>
+      <figure><svg viewBox="0 0 53 53" width="64" aria-hidden="true"><circle cx="26.5" cy="26.5" r="22" fill="none" stroke="#0C6496" stroke-width="9"/><circle cx="42.06" cy="42.06" r="5" fill="#E0592A"/></svg><figcaption>Close the ring or move the ember out of the opening</figcaption></figure>
+    </div>
+    <p>Also: no shadows, glows or outlines on the logo; no busy photos behind it without a calm area; never retype the wordmark, use the files.</p>
+  </section>
+
+  <section>
+    <h2 class="rf-h1">Files</h2>
+    <div class="files rf-table-wrap">
+      <table class="rf-table">
+        <thead><tr><th>File</th><th>Use</th></tr></thead>
+        <tbody>
+          <tr><td class="rf-col-id">reeforge-logo*.svg</td><td>Hub logo: colour, reversed, black, white</td></tr>
+          <tr><td class="rf-col-id">reeforge-finance-logo*.svg</td><td>Reeforge Finance: app header, login, documents</td></tr>
+          <tr><td class="rf-col-id">reeforge-symbol*.svg</td><td>Symbol alone: avatars, small spaces, the app sidebar</td></tr>
+          <tr><td class="rf-col-id">favicon.svg</td><td>Browser tab (adapts to dark mode)</td></tr>
+          <tr><td class="rf-col-id">favicon-16.png, favicon-32.png</td><td>Favicon fallback for older browsers</td></tr>
+          <tr><td class="rf-col-id">apple-touch-icon.png</td><td>iPhone and iPad home screen (180 px)</td></tr>
+          <tr><td class="rf-col-id">icon-192.png, icon-512.png</td><td>Web app manifest (Android, PWA)</td></tr>
+          <tr><td class="rf-col-id">app-icon.svg, app-icon-1024.png</td><td>App stores, presentations, social avatars</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+</body>
+</html>
