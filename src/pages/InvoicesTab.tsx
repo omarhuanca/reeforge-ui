@@ -1,9 +1,13 @@
 import { useState } from 'react'
 import { useCreateInvoice, useInvoice, useInvoiceCounts, useInvoices } from '../api/hooks'
-import type { InvoiceStatus } from '../api/types'
+import type { Invoice, InvoiceStatus } from '../api/types'
+import { IconMore, IconTrash } from '../components/icons'
+import { Menu } from '../components/Menu'
 import { Badge, Empty, ErrorAlert, Field, Modal, Pager, Skeleton } from '../components/ui'
 import { STATUS_BADGE } from '../components/status'
 import { formatDate, formatVT } from '../format'
+import { DeleteInvoiceModal } from './DeleteInvoiceModal'
+import { canDeleteInvoice } from './invoices'
 
 const FILTERS: Array<{ value: '' | InvoiceStatus; label: string }> = [
   { value: '', label: 'All' },
@@ -22,11 +26,12 @@ const SAMPLE = {
   },
 }
 
-export function InvoicesTab({ companyId }: { companyId: number }) {
+export function InvoicesTab({ companyId, onDeleted }: { companyId: number; onDeleted: (message: string) => void }) {
   const [page, setPage] = useState(1)
   const [status, setStatus] = useState<'' | InvoiceStatus>('')
   const [open, setOpen] = useState<number | null>(null)
   const [creating, setCreating] = useState(false)
+  const [deleting, setDeleting] = useState<Invoice | null>(null)
   const q = useInvoices(companyId, page, status)
   const counts = useInvoiceCounts(companyId)
 
@@ -53,10 +58,13 @@ export function InvoicesTab({ companyId }: { companyId: number }) {
         <Empty title="No invoices" text={status ? 'No invoice has this status.' : 'Invoices appear here when Xero sends them or you fiscalize one by hand.'} />
       )}
       {q.data && q.data.data.length > 0 && (
-        <div className="rf-table-wrap">
+        <div className="rf-table-wrap rf-table-wrap--menus">
           <table className="rf-table">
             <thead>
-              <tr><th>External ID</th><th>TaxCore number</th><th>Status</th><th className="rf-col-num">Total</th><th>Created</th></tr>
+              <tr>
+                <th>External ID</th><th>TaxCore number</th><th>Status</th><th className="rf-col-num">Total</th><th>Created</th>
+                <th style={{ width: 48 }}><span className="rf-sr-only">Actions</span></th>
+              </tr>
             </thead>
             <tbody>
               {q.data.data.map((i) => (
@@ -69,6 +77,18 @@ export function InvoicesTab({ companyId }: { companyId: number }) {
                   </td>
                   <td className="rf-col-num">{formatVT(i.total_amount)}</td>
                   <td>{formatDate(i.created_at)}</td>
+                  {/* Only an invoice TaxCore rejected for good can be deleted; the rest never gets a menu. */}
+                  <td className="rf-col-num" onClick={(e) => e.stopPropagation()}>
+                    {canDeleteInvoice(i) && (
+                      <Menu label={`Actions for invoice ${i.external_id}`} buttonClass="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" trigger={<IconMore />}>
+                        {(close) => (
+                          <button type="button" className="rf-menu__item rf-menu__item--danger" role="menuitem" onClick={() => { close(); setDeleting(i) }}>
+                            <IconTrash />Delete invoice
+                          </button>
+                        )}
+                      </Menu>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -79,6 +99,7 @@ export function InvoicesTab({ companyId }: { companyId: number }) {
 
       {open !== null && <InvoiceDetail companyId={companyId} id={open} onClose={() => setOpen(null)} />}
       {creating && <CreateInvoice companyId={companyId} onClose={() => setCreating(false)} />}
+      {deleting && <DeleteInvoiceModal companyId={companyId} invoice={deleting} onClose={() => setDeleting(null)} onDeleted={onDeleted} />}
     </div>
   )
 }

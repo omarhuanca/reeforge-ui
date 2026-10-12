@@ -86,7 +86,7 @@ export function CompanyPage() {
         ))}
       </div>
 
-      {tab === 'invoices' && <InvoicesTab companyId={id} />}
+      {tab === 'invoices' && <InvoicesTab companyId={id} onDeleted={setToast} />}
       {tab === 'certificates' && <CertificatesTab companyId={id} onUpload={() => setUploading(true)} onDeleted={setToast} />}
       {tab === 'xero' && <XeroTab companyId={id} />}
 
