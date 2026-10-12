@@ -490,7 +490,12 @@
 .rf-shell { display: grid; grid-template-columns: var(--rf-sidebar-width) minmax(0, 1fr); min-height: 100vh; }
 .rf-shell > * { min-width: 0; }
 .rf-sidebar { background: var(--rf-glass-bg); -webkit-backdrop-filter: blur(var(--rf-glass-blur)) saturate(160%); backdrop-filter: blur(var(--rf-glass-blur)) saturate(160%); border-right: 1px solid var(--rf-glass-border); display: flex; flex-direction: column; padding: var(--rf-space-4) var(--rf-space-3); gap: var(--rf-space-1); }
-.rf-sidebar__brand { display: flex; align-items: baseline; gap: 6px; padding: var(--rf-space-1) var(--rf-space-2) var(--rf-space-4); font-family: var(--rf-font-display); font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+.rf-sidebar__brand { display: flex; align-items: center; gap: 6px; padding: var(--rf-space-1) var(--rf-space-2) var(--rf-space-4); font-family: var(--rf-font-display); font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+/* Brand mark: the Reeforge atoll symbol inline, coloured by tokens so it follows the theme.
+   Exported artwork lives in design/logo/final/. */
+.rf-brand-mark { width: 24px; height: 24px; flex: none; margin-right: 4px; }
+.rf-brand-mark__ring { fill: none; stroke: var(--rf-primary); stroke-width: 9; stroke-linecap: round; }
+.rf-brand-mark__ember { fill: var(--rf-accent); }
 .rf-sidebar__brand span { color: var(--rf-primary-text); font-weight: 600; }
 .rf-sidebar__section { font-size: var(--rf-text-xs); font-weight: 600; color: var(--rf-text-muted); padding: var(--rf-space-4) var(--rf-space-2) var(--rf-space-1); }
 .rf-nav-item { display: flex; align-items: center; gap: var(--rf-space-3); height: 36px; padding: 0 var(--rf-space-3); border-radius: var(--rf-radius-md); color: var(--rf-text-muted); font-weight: 500; text-decoration: none; transition: background-color var(--rf-dur-fast), color var(--rf-dur-fast); }
@@ -1055,7 +1060,7 @@ dialog.rf-modal::backdrop { background: rgba(7, 29, 48, 0.45); -webkit-backdrop-
     <div class="rf-sandbox-strip rf-above-fluid"></div>
     <div class="rf-shell rf-above-fluid">
       <aside class="rf-sidebar" id="demo-sidebar" aria-label="Main navigation">
-        <div class="rf-sidebar__brand">Reeforge <span>Finance</span></div>
+        <div class="rf-sidebar__brand"><svg class="rf-brand-mark" viewBox="0 0 53 53" aria-hidden="true"><path class="rf-brand-mark__ring" d="M32.93 47.54A22 22 0 1 1 47.54 32.93"/><circle class="rf-brand-mark__ember" cx="42.06" cy="42.06" r="5"/></svg>Reeforge <span>Finance</span></div>
         <a class="rf-nav-item" href="#"><i data-i="dashboard"></i>Overview</a>
         <a class="rf-nav-item" href="#" aria-current="page"><i data-i="file"></i>Invoices<span class="rf-count">3</span></a>
         <a class="rf-nav-item" href="#"><i data-i="building"></i>Companies</a>
@@ -1112,7 +1117,7 @@ dialog.rf-modal::backdrop { background: rgba(7, 29, 48, 0.45); -webkit-backdrop-
   <div class="ds-frame">
     <div class="ds-login">
       <div class="ds-login__form">
-        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:var(--rf-space-6)"><div class="rf-sidebar__brand" style="padding:0">Reeforge <span>Finance</span></div><div class="rf-lang" role="group" aria-label="Language"><button aria-pressed="true">English</button><button>Bislama</button></div></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:var(--rf-space-6)"><div class="rf-sidebar__brand" style="padding:0"><svg class="rf-brand-mark" viewBox="0 0 53 53" aria-hidden="true"><path class="rf-brand-mark__ring" d="M32.93 47.54A22 22 0 1 1 47.54 32.93"/><circle class="rf-brand-mark__ember" cx="42.06" cy="42.06" r="5"/></svg>Reeforge <span>Finance</span></div><div class="rf-lang" role="group" aria-label="Language"><button aria-pressed="true">English</button><button>Bislama</button></div></div>
         <h1 class="rf-h1">Sign in</h1>
         <p class="rf-muted" style="margin:0">Fiscalize your Xero invoices with TaxCore.</p>
         <div class="rf-field"><label class="rf-label" for="l1">Email</label><input class="rf-input" id="l1" type="email" placeholder="name@company.vu" style="height:var(--rf-control-lg)"></div>
