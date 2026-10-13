@@ -4,6 +4,7 @@ import { Layout } from './components/Layout'
 import { LoginPage } from './pages/LoginPage'
 import { CompaniesPage } from './pages/CompaniesPage'
 import { CompanyPage } from './pages/CompanyPage'
+import { XeroResultPage } from './pages/XeroResultPage'
 
 function Protected() {
   const { authed } = useAuth()
@@ -15,6 +16,7 @@ export function App() {
   return (
     <Routes>
       <Route path="/login" element={authed ? <Navigate to="/" replace /> : <LoginPage />} />
+      <Route path="/xero/result" element={<XeroResultPage />} />
       <Route element={<Protected />}>
         <Route path="/" element={<CompaniesPage />} />
         <Route path="/companies/:id/*" element={<CompanyPage />} />
