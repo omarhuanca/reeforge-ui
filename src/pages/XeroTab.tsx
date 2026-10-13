@@ -8,30 +8,35 @@ import { ConnectXeroModal } from './ConnectXeroModal'
 
 export function XeroTab({ companyId }: { companyId: number }) {
   const q = useXero(companyId)
+  // The modal lives here, not in the children: connecting swaps NotConnected for Connected,
+  // and it has to stay open to show the outcome.
+  const [connecting, setConnecting] = useState(false)
   if (q.isLoading) return <Skeleton rows={3} />
   if (q.isError) return <ErrorAlert error={q.error} onRetry={() => q.refetch()} />
-  return q.data ? <Connected companyId={companyId} conn={q.data} /> : <NotConnected companyId={companyId} />
+  return (
+    <>
+      {q.data ? <Connected companyId={companyId} conn={q.data} onConnect={() => setConnecting(true)} /> : <NotConnected onConnect={() => setConnecting(true)} />}
+      {connecting && <ConnectXeroModal companyId={companyId} onClose={() => setConnecting(false)} />}
+    </>
+  )
 }
 
-function NotConnected({ companyId }: { companyId: number }) {
-  const [open, setOpen] = useState(false)
+function NotConnected({ onConnect }: { onConnect: () => void }) {
   return (
     <div className="rf-panel rf-panel__body stack" style={{ gap: 12 }}>
       <div className="row"><h2 style={{ margin: 0 }}>Xero</h2><Badge cls="rf-badge--neutral">Not connected</Badge></div>
       <p className="rf-muted" style={{ margin: 0 }}>
         Connect the company's Xero organisation here, or send the accountant a one-time link to do it.
       </p>
-      <div><button className="rf-btn rf-btn--primary" onClick={() => setOpen(true)}>Connect Xero</button></div>
-      {open && <ConnectXeroModal companyId={companyId} onClose={() => setOpen(false)} />}
+      <div><button className="rf-btn rf-btn--primary" onClick={onConnect}>Connect Xero</button></div>
     </div>
   )
 }
 
-function Connected({ companyId, conn }: { companyId: number; conn: XeroConnection }) {
+function Connected({ companyId, conn, onConnect }: { companyId: number; conn: XeroConnection; onConnect: () => void }) {
   const pending = useXeroPending(companyId, true)
   const disconnect = useXeroDisconnect(companyId)
   const [confirm, setConfirm] = useState(false)
-  const [reconnect, setReconnect] = useState(false)
 
   return (
     <div className="stack">
@@ -42,7 +47,7 @@ function Connected({ companyId, conn }: { companyId: number; conn: XeroConnectio
         </div>
         <p className="rf-muted rf-sm" style={{ margin: 0 }}>Connected {formatDate(conn.connected_at)} · last reconciled {formatDate(conn.reconciled_at)}</p>
         <div className="row">
-          <button className="rf-btn rf-btn--secondary rf-btn--sm" onClick={() => setReconnect(true)}>Reconnect Xero</button>
+          <button className="rf-btn rf-btn--secondary rf-btn--sm" onClick={onConnect}>Reconnect Xero</button>
           <button className="rf-btn rf-btn--danger-ghost rf-btn--sm" onClick={() => setConfirm(true)}>Disconnect Xero</button>
         </div>
       </div>
@@ -72,8 +77,6 @@ function Connected({ companyId, conn }: { companyId: number; conn: XeroConnectio
           </div>
         )}
       </div>
-
-      {reconnect && <ConnectXeroModal companyId={companyId} onClose={() => setReconnect(false)} />}
 
       {confirm && (
         <Modal
