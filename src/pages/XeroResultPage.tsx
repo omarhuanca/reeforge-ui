@@ -1,12 +1,22 @@
+import { useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Brand } from '../components/BrandMark'
 import { ThemeToggle } from '../components/ThemeToggle'
+import { announceXeroResult } from './xeroChannel'
 import { xeroResult } from './xeroResult'
 
 /** Where the accountant lands after the Xero consent. Public: they have no Reeforge account. */
 export function XeroResultPage() {
   const [params] = useSearchParams()
-  const result = xeroResult(params.get('status'))
+  const status = params.get('status')
+  const result = xeroResult(status)
+
+  // Opened as the connect pop-up: tell the modal in the app, then close. A plain tab ignores close().
+  useEffect(() => {
+    announceXeroResult(status)
+    const t = window.setTimeout(() => window.close(), 1200)
+    return () => window.clearTimeout(t)
+  }, [status])
 
   return (
     <div className="login">
