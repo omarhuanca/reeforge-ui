@@ -1,9 +1,10 @@
 import { useState, type FormEvent } from 'react'
-import { useXero, useXeroDisconnect, useXeroLink, useXeroPending, useXeroSettings } from '../api/hooks'
+import { useXero, useXeroDisconnect, useXeroPending, useXeroSettings } from '../api/hooks'
 import { ApiError } from '../api/client'
 import { XERO_PAYMENT_TYPES, type XeroConnection } from '../api/types'
 import { Badge, ErrorAlert, Field, Modal, Skeleton } from '../components/ui'
 import { formatDate, parseTaxLabels, stringifyTaxLabels } from '../format'
+import { ConnectXeroModal } from './ConnectXeroModal'
 
 export function XeroTab({ companyId }: { companyId: number }) {
   const q = useXero(companyId)
@@ -13,27 +14,15 @@ export function XeroTab({ companyId }: { companyId: number }) {
 }
 
 function NotConnected({ companyId }: { companyId: number }) {
-  const link = useXeroLink(companyId)
-  const [copied, setCopied] = useState(false)
-  const url = link.data?.url
+  const [open, setOpen] = useState(false)
   return (
     <div className="rf-panel rf-panel__body stack" style={{ gap: 12 }}>
       <div className="row"><h2 style={{ margin: 0 }}>Xero</h2><Badge cls="rf-badge--neutral">Not connected</Badge></div>
       <p className="rf-muted" style={{ margin: 0 }}>
-        The company's accountant connects Xero by opening a one-time link. Generate it here and send it to them.
+        Connect the company's Xero organisation here, or send the accountant a one-time link to do it.
       </p>
-      {link.isError && <ErrorAlert error={link.error} />}
-      {url && (
-        <div className="stack" style={{ gap: 8 }}>
-          <input className="rf-input rf-input--mono" readOnly value={url} onFocus={(e) => e.currentTarget.select()} />
-          <div><button className="rf-btn rf-btn--secondary rf-btn--sm" onClick={() => navigator.clipboard.writeText(url).then(() => setCopied(true))}>{copied ? 'Link copied' : 'Copy link'}</button></div>
-        </div>
-      )}
-      <div>
-        <button className="rf-btn rf-btn--primary" disabled={link.isPending} aria-busy={link.isPending} onClick={() => { setCopied(false); link.mutate() }}>
-          {link.isPending ? 'Creating link…' : url ? 'Create a new link' : 'Create connection link'}
-        </button>
-      </div>
+      <div><button className="rf-btn rf-btn--primary" onClick={() => setOpen(true)}>Connect Xero</button></div>
+      {open && <ConnectXeroModal companyId={companyId} onClose={() => setOpen(false)} />}
     </div>
   )
 }
@@ -42,6 +31,7 @@ function Connected({ companyId, conn }: { companyId: number; conn: XeroConnectio
   const pending = useXeroPending(companyId, true)
   const disconnect = useXeroDisconnect(companyId)
   const [confirm, setConfirm] = useState(false)
+  const [reconnect, setReconnect] = useState(false)
 
   return (
     <div className="stack">
@@ -51,7 +41,10 @@ function Connected({ companyId, conn }: { companyId: number; conn: XeroConnectio
           {conn.configured ? <Badge cls="rf-badge--success">Connected</Badge> : <Badge cls="rf-badge--warning">Needs setup</Badge>}
         </div>
         <p className="rf-muted rf-sm" style={{ margin: 0 }}>Connected {formatDate(conn.connected_at)} · last reconciled {formatDate(conn.reconciled_at)}</p>
-        <div><button className="rf-btn rf-btn--danger-ghost rf-btn--sm" onClick={() => setConfirm(true)}>Disconnect Xero</button></div>
+        <div className="row">
+          <button className="rf-btn rf-btn--secondary rf-btn--sm" onClick={() => setReconnect(true)}>Reconnect Xero</button>
+          <button className="rf-btn rf-btn--danger-ghost rf-btn--sm" onClick={() => setConfirm(true)}>Disconnect Xero</button>
+        </div>
       </div>
 
       <MappingForm key={JSON.stringify([conn.tax_labels, conn.payment_type])} companyId={companyId} conn={conn} />
@@ -79,6 +72,8 @@ function Connected({ companyId, conn }: { companyId: number; conn: XeroConnectio
           </div>
         )}
       </div>
+
+      {reconnect && <ConnectXeroModal companyId={companyId} onClose={() => setReconnect(false)} />}
 
       {confirm && (
         <Modal
