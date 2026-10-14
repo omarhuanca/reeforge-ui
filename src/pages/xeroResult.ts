@@ -1,7 +1,7 @@
 export type XeroResult = { ok: boolean; title: string; text: string }
 
 const RESULTS: Record<string, XeroResult> = {
-  connected: { ok: true, title: 'Xero connected', text: 'The organisation is linked to the company. You can close this page.' },
+  connected: { ok: true, title: 'Xero connected', text: 'The organisation is linked to the company.' },
   expired: { ok: false, title: 'This link expired', text: 'The connection link expired or was already used. Ask the admin for a new one.' },
   denied: { ok: false, title: 'Xero was not authorized', text: 'Open the link again to retry.' },
   unavailable: { ok: false, title: 'Xero could not finish', text: 'Try the link again in a few minutes.' },
