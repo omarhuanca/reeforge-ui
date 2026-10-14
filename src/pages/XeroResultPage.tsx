@@ -25,7 +25,7 @@ export function XeroResultPage() {
         <Brand className="login__brand" />
         <h1 style={{ margin: 0 }}>{result.title}</h1>
         <div className={`rf-alert rf-alert--${result.ok ? 'success' : 'danger'}`} role={result.ok ? 'status' : 'alert'}>
-          <div>{result.text}</div>
+          <div>{result.text}{result.ok && ' You can close this page.'}</div>
         </div>
       </div>
     </div>
