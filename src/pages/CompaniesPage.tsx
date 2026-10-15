@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useCompanies, useDeleteCompany, useSaveCompany } from '../api/hooks'
 import { ApiError, errorMessage } from '../api/client'
-import type { Company } from '../api/types'
+import { CHANNELS, type Channel, type Company } from '../api/types'
 import { IconEdit, IconMore, IconTrash, IconUpload } from '../components/icons'
 import { Menu } from '../components/Menu'
 import { Badge, Empty, ErrorAlert, Field, Modal, Pager, Skeleton } from '../components/ui'
@@ -94,9 +94,13 @@ export function CompaniesPage() {
 export function CompanyForm({ company, onClose }: { company?: Company; onClose: () => void }) {
   const save = useSaveCompany(company?.id)
   const [name, setName] = useState(company?.business_name ?? '')
+  // No default: the channel is exclusive and hard to change later, so it is an explicit choice.
+  const [channel, setChannel] = useState<Channel | undefined>(undefined)
+  const missingChannel = !company && !channel
   const submit = (e: FormEvent) => {
     e.preventDefault()
-    save.mutate(name, { onSuccess: onClose })
+    if (missingChannel) return
+    save.mutate({ business_name: name, channel }, { onSuccess: onClose })
   }
   const err = save.error ? (save.error instanceof ApiError ? errorMessage(save.error) : 'Could not save') : undefined
   return (
@@ -106,7 +110,7 @@ export function CompanyForm({ company, onClose }: { company?: Company; onClose: 
       foot={
         <>
           <button className="rf-btn rf-btn--secondary" onClick={onClose}>Cancel</button>
-          <button className="rf-btn rf-btn--primary" form="company-form" disabled={save.isPending || !name.trim()} aria-busy={save.isPending}>
+          <button className="rf-btn rf-btn--primary" form="company-form" disabled={save.isPending || !name.trim() || missingChannel} aria-busy={save.isPending}>
             {company ? 'Save name' : 'Add company'}
           </button>
         </>
@@ -116,6 +120,23 @@ export function CompanyForm({ company, onClose }: { company?: Company; onClose: 
         <Field label="Business name" error={err}>
           <input className="rf-input" autoFocus value={name} onChange={(e) => setName(e.target.value)} aria-invalid={!!err} />
         </Field>
+        {!company && (
+          <fieldset className="rf-field" style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
+            <legend className="rf-label" style={{ padding: 0 }}>Fiscalization channel</legend>
+            <div className="stack" style={{ gap: 10 }}>
+              {CHANNELS.map((c) => (
+                <label key={c.value} className="rf-check">
+                  <input type="radio" name="channel" value={c.value} checked={channel === c.value} onChange={() => setChannel(c.value)} required />
+                  <span>
+                    {c.label}
+                    <span className="rf-help" style={{ display: 'block' }}>{c.help}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+            <span className="rf-help">One channel per company, so a sale is never signed twice.</span>
+          </fieldset>
+        )}
       </form>
     </Modal>
   )

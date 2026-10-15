@@ -8,9 +8,18 @@ export interface NewToken {
   expires_at: string | null
 }
 
+/** How a company fiscalizes. Exclusive in nexo-bk, so a sale cannot be signed twice. */
+export type Channel = 'taxcore' | 'xero'
+
+export const CHANNELS: { value: Channel; label: string; help: string }[] = [
+  { value: 'taxcore', label: 'TaxCore API', help: 'Invoices are sent to Reeforge (POST /invoices) and fiscalized right away.' },
+  { value: 'xero', label: 'Xero', help: 'Invoices approved in the company’s Xero organisation are fiscalized automatically.' },
+]
+
 export interface Company {
   id: number
   business_name: string
+  channel: Channel
   has_usable_certificate: boolean
   created_at: string
 }
