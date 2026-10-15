@@ -39,11 +39,14 @@ export function Modal({
   onClose,
   children,
   foot,
+  wide = false,
 }: {
   title: string
   onClose: () => void
   children: ReactNode
   foot?: ReactNode
+  /** For forms with a table of fields; the default width suits a short confirmation. */
+  wide?: boolean
 }) {
   // Native <dialog> opened with showModal(): focus trap, Esc and ::backdrop come from the browser.
   const ref = useRef<HTMLDialogElement>(null)
@@ -57,7 +60,7 @@ export function Modal({
   return (
     <dialog
       ref={ref}
-      className="rf-modal"
+      className={wide ? 'rf-modal rf-modal--wide' : 'rf-modal'}
       aria-labelledby={titleId}
       onClose={onClose}
       onClick={(e) => {

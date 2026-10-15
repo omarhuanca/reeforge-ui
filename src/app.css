@@ -43,3 +43,25 @@ button.rf-link { background: none; border: 0; padding: 0; font: inherit; cursor:
 
 /* Inputs fill the card instead of overflowing it (padding and border count inside the width). */
 .login__card .rf-input { box-sizing: border-box; width: 100%; }
+
+/* Invoice form: items and payments are rows of fields; they stack on a narrow screen. */
+dialog.rf-modal.rf-modal--wide { width: min(880px, 100%); }
+.inv-top { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.inv-section { border: 0; padding: 0; margin: 0; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.inv-section > legend { padding: 0; margin-bottom: 8px; }
+.inv-grid { display: grid; grid-template-columns: minmax(0, 1fr) 84px 120px 64px 110px 36px; gap: 8px; align-items: center; }
+.inv-grid--payments { grid-template-columns: minmax(0, 1fr) 160px 36px; }
+.inv-head { font-size: var(--rf-text-xs); font-weight: 600; color: var(--rf-text-muted); }
+.inv-num { text-align: right; font-variant-numeric: tabular-nums; }
+.inv-total { color: var(--rf-text); }
+.inv-totals { display: flex; gap: 24px; justify-content: flex-end; color: var(--rf-text-muted); font-size: var(--rf-text-sm); }
+.inv-totals strong { color: var(--rf-text); font-variant-numeric: tabular-nums; }
+.inv-problems { margin: 0; padding-left: 18px; }
+@media (max-width: 700px) {
+  .inv-top { grid-template-columns: 1fr; }
+  .inv-head { display: none; }
+  .inv-grid { grid-template-columns: 1fr 1fr 64px auto; }
+  .inv-grid > :first-child { grid-column: 1 / -1; }
+  .inv-grid--payments { grid-template-columns: 1fr 1fr auto; }
+  .inv-grid--payments > :first-child { grid-column: auto; }
+}
