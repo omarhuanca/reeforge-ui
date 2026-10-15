@@ -40,6 +40,19 @@ export function useSaveCompany(id?: number) {
   })
 }
 
+export function useChangeChannel(id: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (channel: Channel) => api<{ data: Company }>(`/companies/${id}`, { method: 'PATCH', body: { channel } }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['companies'] })
+      qc.invalidateQueries({ queryKey: ['company', id] })
+      qc.invalidateQueries({ queryKey: ['xero', id] })
+      qc.invalidateQueries({ queryKey: ['xero-pending', id] })
+    },
+  })
+}
+
 export function useDeleteCompany() {
   const qc = useQueryClient()
   return useMutation({

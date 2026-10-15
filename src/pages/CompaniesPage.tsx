@@ -45,6 +45,7 @@ export function CompaniesPage() {
             <thead>
               <tr>
                 <th>Business name</th>
+                <th>Channel</th>
                 <th>Certificate</th>
                 <th>Created</th>
                 <th style={{ width: 48 }}><span className="rf-sr-only">Actions</span></th>
@@ -54,6 +55,7 @@ export function CompaniesPage() {
               {q.data.data.map((c) => (
                 <tr key={c.id}>
                   <td><Link className="rf-link" to={`/companies/${c.id}`}>{c.business_name}</Link></td>
+                  <td>{CHANNELS.find((x) => x.value === c.channel)?.label ?? '–'}</td>
                   <td>{c.has_usable_certificate ? <Badge cls="rf-badge--success">Valid</Badge> : <Badge cls="rf-badge--warning">Needs setup</Badge>}</td>
                   <td>{formatDate(c.created_at)}</td>
                   <td className="rf-col-num">

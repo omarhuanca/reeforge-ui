@@ -2,13 +2,14 @@ import { useState } from 'react'
 import { errorMessage } from '../api/client'
 import { useCreateInvoice, useInvoice, useInvoiceCounts, useInvoices } from '../api/hooks'
 import { asSentence, taxCoreRejection } from '../api/taxcore'
-import type { Invoice, InvoiceStatus } from '../api/types'
+import type { Channel, Invoice, InvoiceStatus } from '../api/types'
 import { IconMore, IconTrash } from '../components/icons'
 import { Menu } from '../components/Menu'
 import { Badge, Empty, ErrorAlert, Field, Modal, Pager, Skeleton } from '../components/ui'
 import { STATUS_BADGE } from '../components/status'
 import { formatDate, formatVT } from '../format'
 import { DeleteInvoiceModal } from './DeleteInvoiceModal'
+import { canFiscalizeByHand } from './channels'
 import { canDeleteInvoice } from './invoices'
 
 const FILTERS: Array<{ value: '' | InvoiceStatus; label: string }> = [
@@ -28,7 +29,7 @@ const SAMPLE = {
   },
 }
 
-export function InvoicesTab({ companyId, onDeleted }: { companyId: number; onDeleted: (message: string) => void }) {
+export function InvoicesTab({ companyId, channel, onDeleted }: { companyId: number; channel: Channel; onDeleted: (message: string) => void }) {
   const [page, setPage] = useState(1)
   const [status, setStatus] = useState<'' | InvoiceStatus>('')
   const [open, setOpen] = useState<number | null>(null)
@@ -51,13 +52,17 @@ export function InvoicesTab({ companyId, onDeleted }: { companyId: number; onDel
           ))}
         </div>
         <span className="rf-toolbar__spacer" />
-        <button className="rf-btn rf-btn--secondary" onClick={() => setCreating(true)}>Fiscalize invoice</button>
+        {canFiscalizeByHand(channel) ? (
+          <button className="rf-btn rf-btn--secondary" onClick={() => setCreating(true)}>Fiscalize invoice</button>
+        ) : (
+          <span className="rf-muted rf-sm">Invoices come from Xero: approve them there.</span>
+        )}
       </div>
 
       {q.isError && <ErrorAlert error={q.error} onRetry={() => q.refetch()} />}
       {q.isLoading && <Skeleton />}
       {q.data && q.data.data.length === 0 && (
-        <Empty title="No invoices" text={status ? 'No invoice has this status.' : 'Invoices appear here when Xero sends them or you fiscalize one by hand.'} />
+        <Empty title="No invoices" text={status ? 'No invoice has this status.' : channel === 'xero' ? 'Invoices appear here when you approve them in Xero.' : 'Invoices appear here when you fiscalize them.'} />
       )}
       {q.data && q.data.data.length > 0 && (
         <div className="rf-table-wrap rf-table-wrap--menus">
