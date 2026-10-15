@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildInvoice, emptyForm, emptyLine, invoiceProblems, itemsTotal, lineTotal, newExternalId, paymentsTotal, syncPayment, toNumber, type InvoiceFormState } from './invoiceForm'
+import { buildInvoice, emptyForm, emptyLine, formFromJson, invoiceProblems, itemsTotal, lineTotal, newExternalId, paymentsTotal, syncPayment, toJsonText, toNumber, type InvoiceFormState } from './invoiceForm'
 
 const filled = (over: Partial<InvoiceFormState> = {}): InvoiceFormState => ({
   ...emptyForm(new Date(2026, 9, 15, 16, 5, 9)),
@@ -84,5 +84,42 @@ describe('invoice form', () => {
     expect(syncPayment(touched).payments[0].amount).toBe('10')
     const split = { ...form, payments: [{ paymentType: 'Cash', amount: '1' }, { paymentType: 'Card', amount: '2' }] }
     expect(syncPayment(split)).toBe(split)
+  })
+
+  it('what the form holds survives the trip to JSON and back', () => {
+    const form = filled({ externalId: 'UI-1', transactionType: 'Refund', referentDocumentNumber: '5VPJ-24', buyerId: '77' })
+    const back = formFromJson(toJsonText(form))
+    expect(back?.dropped).toEqual([])
+    expect(buildInvoice(back!.form)).toEqual(buildInvoice(form))
+  })
+
+  it('lists what the form cannot hold instead of silently dropping it', () => {
+    const json = JSON.stringify({
+      external_id: 'X-1',
+      note: 'hello',
+      invoice: {
+        invoiceType: 'Normal',
+        transactionType: 'Sale',
+        dateAndTimeOfIssue: '2026-10-15T10:00:00',
+        payment: [{ amount: 90, paymentType: 'Cash', vouchers: 1 }],
+        items: [{ name: 'Tea', quantity: 1, unitPrice: 100, labels: ['A', 'B'], totalAmount: 90, discount: 10, gtin: '123' }],
+      },
+    })
+    const result = formFromJson(json)
+    expect(result?.dropped.sort()).toEqual([
+      'invoice.dateAndTimeOfIssue',
+      'items.discount',
+      'items.gtin',
+      'items.labels (only the first is kept)',
+      'note',
+      'payment.vouchers',
+    ])
+    expect(result?.form.lines[0]).toEqual({ name: 'Tea', quantity: '1', unitPrice: '100', label: 'A' })
+  })
+
+  it('text that is not an invoice object is refused', () => {
+    expect(formFromJson('not json')).toBeNull()
+    expect(formFromJson('[]')).toBeNull()
+    expect(formFromJson('{"external_id":"x"}')).toBeNull()
   })
 })

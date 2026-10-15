@@ -157,3 +157,70 @@ export function buildInvoice(form: InvoiceFormState): InvoiceRequestBody {
     },
   }
 }
+
+/** The JSON mode starts from what the form holds, so nothing typed is lost when switching. */
+export const toJsonText = (form: InvoiceFormState): string => JSON.stringify(buildInvoice(form), null, 2)
+
+const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v)
+const str = (v: unknown): string => (typeof v === 'string' || typeof v === 'number' ? String(v) : '')
+const oneOf = <T extends string>(allowed: readonly T[], v: unknown, fallback: T): T => (allowed.includes(v as T) ? (v as T) : fallback)
+
+const SUPPORTED = {
+  invoice: ['invoiceType', 'transactionType', 'referentDocumentNumber', 'buyerId', 'cashier', 'payment', 'items'],
+  item: ['name', 'quantity', 'unitPrice', 'labels', 'totalAmount'],
+  payment: ['amount', 'paymentType'],
+}
+
+/**
+ * Reads JSON back into the form. What the form has no field for (a discount, a GTIN, a second tax label…)
+ * is listed in `dropped`, because the form would not send it. Null when the text is not an invoice object.
+ */
+export function formFromJson(textValue: string): { form: InvoiceFormState; dropped: string[] } | null {
+  let root: unknown
+  try {
+    root = JSON.parse(textValue)
+  } catch {
+    return null
+  }
+  if (!isRecord(root) || !isRecord(root.invoice)) return null
+
+  const inv = root.invoice
+  const dropped = new Set<string>()
+  const note = (obj: Record<string, unknown>, supported: string[], prefix = '') =>
+    Object.keys(obj).filter((k) => !supported.includes(k)).forEach((k) => dropped.add(prefix + k))
+
+  note(root, ['external_id', 'invoice'])
+  note(inv, SUPPORTED.invoice, 'invoice.')
+
+  const items = Array.isArray(inv.items) ? inv.items.filter(isRecord) : []
+  const payments = Array.isArray(inv.payment) ? inv.payment.filter(isRecord) : []
+  items.forEach((it) => {
+    note(it, SUPPORTED.item, 'items.')
+    if (Array.isArray(it.labels) && it.labels.length > 1) dropped.add('items.labels (only the first is kept)')
+  })
+  payments.forEach((p) => note(p, SUPPORTED.payment, 'payment.'))
+
+  const base = emptyForm()
+  return {
+    dropped: [...dropped],
+    form: {
+      ...base,
+      externalId: str(root.external_id),
+      invoiceType: oneOf(INVOICE_TYPES, inv.invoiceType, 'Normal'),
+      transactionType: oneOf(TRANSACTION_TYPES, inv.transactionType, 'Sale'),
+      referentDocumentNumber: str(inv.referentDocumentNumber),
+      buyerId: str(inv.buyerId),
+      cashier: str(inv.cashier),
+      lines: items.length
+        ? items.map((it) => ({
+            name: str(it.name),
+            quantity: str(it.quantity),
+            unitPrice: str(it.unitPrice),
+            label: Array.isArray(it.labels) ? str(it.labels[0]) : '',
+          }))
+        : [emptyLine()],
+      payments: payments.length ? payments.map((p) => ({ paymentType: str(p.paymentType) || 'Cash', amount: str(p.amount) })) : base.payments,
+      paymentTouched: true,
+    },
+  }
+}
