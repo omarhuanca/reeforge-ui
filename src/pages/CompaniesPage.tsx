@@ -41,7 +41,7 @@ export function CompaniesPage() {
       )}
       {q.data && q.data.data.length > 0 && (
         <div className="rf-table-wrap rf-table-wrap--menus">
-          <table className="rf-table">
+          <table className="rf-table rf-table--stack">
             <thead>
               <tr>
                 <th>Business name</th>
@@ -54,11 +54,11 @@ export function CompaniesPage() {
             <tbody>
               {q.data.data.map((c) => (
                 <tr key={c.id}>
-                  <td><Link className="rf-link" to={`/companies/${c.id}`}>{c.business_name}</Link></td>
-                  <td>{CHANNELS.find((x) => x.value === c.channel)?.label ?? '–'}</td>
-                  <td>{c.has_usable_certificate ? <Badge cls="rf-badge--success">Valid</Badge> : <Badge cls="rf-badge--warning">Needs setup</Badge>}</td>
-                  <td>{formatDate(c.created_at)}</td>
-                  <td className="rf-col-num">
+                  <td className="rf-cell-title"><Link className="rf-link" to={`/companies/${c.id}`}>{c.business_name}</Link></td>
+                  <td data-label="Channel">{CHANNELS.find((x) => x.value === c.channel)?.label ?? '–'}</td>
+                  <td data-label="Certificate">{c.has_usable_certificate ? <Badge cls="rf-badge--success">Valid</Badge> : <Badge cls="rf-badge--warning">Needs setup</Badge>}</td>
+                  <td data-label="Created">{formatDate(c.created_at)}</td>
+                  <td className="rf-col-num rf-cell-actions">
                     <Menu label={`Actions for ${c.business_name}`} buttonClass="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" trigger={<IconMore />}>
                       {(close) => (
                         <>

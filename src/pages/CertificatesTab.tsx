@@ -47,7 +47,7 @@ export function CertificatesTab({
             <button className="rf-btn rf-btn--secondary" onClick={onUpload}>Upload certificate</button>
           </div>
           <div className="rf-table-wrap rf-table-wrap--menus">
-            <table className="rf-table">
+            <table className="rf-table rf-table--stack">
               <thead>
                 <tr>
                   <th>Location</th><th>UID</th><th>Environment</th><th>Status</th><th>Valid until</th>
@@ -57,12 +57,12 @@ export function CertificatesTab({
               <tbody>
                 {q.data.map((c) => (
                   <tr key={c.id}>
-                    <td>{c.common_name}</td>
-                    <td className="rf-col-id">{c.uid}</td>
-                    <td>{c.environment}</td>
-                    <td>{certBadge(c)}</td>
-                    <td>{formatDate(c.valid_to)}</td>
-                    <td className="rf-col-num">
+                    <td className="rf-cell-title">{c.common_name}</td>
+                    <td className="rf-col-id" data-label="UID">{c.uid}</td>
+                    <td data-label="Environment">{c.environment}</td>
+                    <td data-label="Status">{certBadge(c)}</td>
+                    <td data-label="Valid until">{formatDate(c.valid_to)}</td>
+                    <td className="rf-col-num rf-cell-actions">
                       <Menu label={`Actions for certificate ${c.uid}`} buttonClass="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" trigger={<IconMore />}>
                         {(close) => (
                           <button type="button" className="rf-menu__item rf-menu__item--danger" role="menuitem" onClick={() => { close(); setDeleting(c) }}>
