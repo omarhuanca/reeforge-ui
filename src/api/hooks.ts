@@ -2,6 +2,7 @@ import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/rea
 import { api, ApiError } from './client'
 import type {
   Certificate,
+  Channel,
   Company,
   DeleteCertificateResult,
   Invoice,
@@ -27,10 +28,11 @@ export const useCompany = (id: number) =>
 export function useSaveCompany(id?: number) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (business_name: string) =>
+    // The channel is chosen once, when the company is created; renaming sends only the name.
+    mutationFn: ({ business_name, channel }: { business_name: string; channel?: Channel }) =>
       id
         ? api<{ data: Company }>(`/companies/${id}`, { method: 'PATCH', body: { business_name } })
-        : api<{ data: Company }>('/companies', { method: 'POST', body: { business_name } }),
+        : api<{ data: Company }>('/companies', { method: 'POST', body: { business_name, channel } }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['companies'] })
       qc.invalidateQueries({ queryKey: ['company'] })

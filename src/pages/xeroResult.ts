@@ -6,6 +6,7 @@ const RESULTS: Record<string, XeroResult> = {
   denied: { ok: false, title: 'Xero was not authorized', text: 'Open the link again to retry.' },
   unavailable: { ok: false, title: 'Xero could not finish', text: 'Try the link again in a few minutes.' },
   organisations: { ok: false, title: 'Select one organisation', text: 'Authorize exactly one Xero organisation for this company. Open the link again and select only one.' },
+  channel: { ok: false, title: 'This company does not use Xero', text: 'It fiscalizes through the TaxCore API. Ask the admin to switch its channel to Xero, then use a new link.' },
   taken: { ok: false, title: 'Organisation already in use', text: 'That Xero organisation is already connected to another company.' },
 }
 
