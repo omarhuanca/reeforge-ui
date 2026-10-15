@@ -60,8 +60,13 @@ dialog.rf-modal.rf-modal--wide { width: min(880px, 100%); }
 @media (max-width: 700px) {
   .inv-top { grid-template-columns: 1fr; }
   .inv-head { display: none; }
-  .inv-grid { grid-template-columns: 1fr 1fr 64px auto; }
-  .inv-grid > :first-child { grid-column: 1 / -1; }
+  /* A line becomes two rows: name and remove button, then quantity, unit price, tax label and total. */
+  .inv-grid:not(.inv-grid--payments) { grid-template-columns: 1fr 1fr 56px 1fr; }
+  .inv-grid:not(.inv-grid--payments) > :nth-child(1) { grid-column: 1 / 4; grid-row: 1; }
+  .inv-grid:not(.inv-grid--payments) > :nth-child(6) { grid-column: 4; grid-row: 1; justify-self: end; }
+  .inv-grid:not(.inv-grid--payments) > :nth-child(2) { grid-column: 1; grid-row: 2; }
+  .inv-grid:not(.inv-grid--payments) > :nth-child(3) { grid-column: 2; grid-row: 2; }
+  .inv-grid:not(.inv-grid--payments) > :nth-child(4) { grid-column: 3; grid-row: 2; }
+  .inv-grid:not(.inv-grid--payments) > :nth-child(5) { grid-column: 4; grid-row: 2; }
   .inv-grid--payments { grid-template-columns: 1fr 1fr auto; }
-  .inv-grid--payments > :first-child { grid-column: auto; }
 }
