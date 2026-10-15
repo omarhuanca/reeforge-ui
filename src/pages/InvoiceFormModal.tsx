@@ -4,6 +4,7 @@ import { useCreateInvoice, useInvoices } from '../api/hooks'
 import { asSentence, taxCoreRejection } from '../api/taxcore'
 import { PAYMENT_TYPES } from '../api/types'
 import { IconTrash } from '../components/icons'
+import { useSlow } from '../useSlow'
 import { Field, Modal } from '../components/ui'
 import {
   INVOICE_TYPES,
@@ -25,6 +26,8 @@ import {
 
 const money = (n: number) => n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const SHOWN_PROBLEMS = 3
+/** TaxCore's sandbox sometimes takes 15 s or more; after this the modal says so instead of looking stuck. */
+const SLOW_AFTER_MS = 8000
 
 /**
  * Creates and fiscalizes an invoice for the company: items, payments and the sale or refund.
@@ -32,6 +35,7 @@ const SHOWN_PROBLEMS = 3
  */
 export function InvoiceFormModal({ companyId, onClose }: { companyId: number; onClose: () => void }) {
   const create = useCreateInvoice(companyId)
+  const slow = useSlow(create.isPending, SLOW_AFTER_MS)
   const [form, setForm] = useState<InvoiceFormState>(() => emptyForm())
   const [mode, setMode] = useState<'form' | 'json'>('form')
   const [jsonText, setJsonText] = useState('')
@@ -221,6 +225,12 @@ export function InvoiceFormModal({ companyId, onClose }: { companyId: number; on
 
             {create.isError && <CreateFailure error={create.error} />}
           </>
+        )}
+
+        {slow && (
+          <div className="rf-alert rf-alert--info" role="status">
+            <div><strong>TaxCore is taking longer than usual.</strong> Do not close this window or send the invoice again yet: it may still finish. If it fails, you will be told whether it is safe to retry.</div>
+          </div>
         )}
       </form>
     </Modal>
