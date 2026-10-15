@@ -1,14 +1,13 @@
 import { useState } from 'react'
-import { errorMessage } from '../api/client'
-import { useCreateInvoice, useInvoice, useInvoiceCounts, useInvoices } from '../api/hooks'
-import { asSentence, taxCoreRejection } from '../api/taxcore'
+import { useInvoice, useInvoiceCounts, useInvoices } from '../api/hooks'
 import type { Channel, Invoice, InvoiceStatus } from '../api/types'
 import { IconMore, IconTrash } from '../components/icons'
 import { Menu } from '../components/Menu'
-import { Badge, Empty, ErrorAlert, Field, Modal, Pager, Skeleton } from '../components/ui'
+import { Badge, Empty, ErrorAlert, Modal, Pager, Skeleton } from '../components/ui'
 import { STATUS_BADGE } from '../components/status'
 import { formatDate, formatVT } from '../format'
 import { DeleteInvoiceModal } from './DeleteInvoiceModal'
+import { InvoiceFormModal } from './InvoiceFormModal'
 import { canFiscalizeByHand } from './channels'
 import { canDeleteInvoice } from './invoices'
 
@@ -18,16 +17,6 @@ const FILTERS: Array<{ value: '' | InvoiceStatus; label: string }> = [
   { value: 'pending', label: 'Pending' },
   { value: 'failed', label: 'Failed' },
 ]
-
-const SAMPLE = {
-  external_id: 'INV-0001',
-  invoice: {
-    invoiceType: 'Normal',
-    transactionType: 'Sale',
-    payment: [{ amount: 115, paymentType: 'Cash' }],
-    items: [{ name: 'Coffee', quantity: 1, unitPrice: 115, labels: ['A'], totalAmount: 115 }],
-  },
-}
 
 export function InvoicesTab({ companyId, channel, onDeleted }: { companyId: number; channel: Channel; onDeleted: (message: string) => void }) {
   const [page, setPage] = useState(1)
@@ -105,7 +94,7 @@ export function InvoicesTab({ companyId, channel, onDeleted }: { companyId: numb
       )}
 
       {open !== null && <InvoiceDetail companyId={companyId} id={open} onClose={() => setOpen(null)} />}
-      {creating && <CreateInvoice companyId={companyId} onClose={() => setCreating(false)} />}
+      {creating && <InvoiceFormModal companyId={companyId} onClose={() => setCreating(false)} />}
       {deleting && <DeleteInvoiceModal companyId={companyId} invoice={deleting} onClose={() => setDeleting(null)} onDeleted={onDeleted} />}
     </div>
   )
@@ -139,73 +128,5 @@ function InvoiceDetail({ companyId, id, onClose }: { companyId: number; id: numb
         </div>
       )}
     </Modal>
-  )
-}
-
-function CreateInvoice({ companyId, onClose }: { companyId: number; onClose: () => void }) {
-  const create = useCreateInvoice(companyId)
-  const [text, setText] = useState(JSON.stringify(SAMPLE, null, 2))
-  const [parseError, setParseError] = useState('')
-
-  function send() {
-    try {
-      const body = JSON.parse(text)
-      setParseError('')
-      create.mutate(body, { onSuccess: onClose })
-    } catch {
-      setParseError('This is not valid JSON.')
-    }
-  }
-
-  return (
-    <Modal
-      title="Fiscalize invoice"
-      onClose={onClose}
-      foot={
-        <>
-          <button className="rf-btn rf-btn--secondary" onClick={onClose}>Cancel</button>
-          <button className="rf-btn rf-btn--primary" disabled={create.isPending} aria-busy={create.isPending} onClick={send}>
-            {create.isPending ? 'Sending to TaxCore…' : 'Fiscalize invoice'}
-          </button>
-        </>
-      }
-    >
-      <div className="form" style={{ maxWidth: 'none' }}>
-        <p className="rf-muted rf-sm" style={{ margin: 0 }}>
-          Sends a real invoice to TaxCore for this company. Resending the same <span className="rf-mono">external_id</span> with the same data returns the saved invoice.
-        </p>
-        <Field label="Invoice JSON" error={parseError || undefined}>
-          <textarea className="rf-textarea rf-input--mono" rows={16} value={text} onChange={(e) => setText(e.target.value)} spellCheck={false} />
-        </Field>
-        {create.isError && <CreateFailure error={create.error} />}
-      </div>
-    </Modal>
-  )
-}
-
-/** Says why the invoice was not signed and what to do next. */
-function CreateFailure({ error }: { error: unknown }) {
-  const rejection = taxCoreRejection(error)
-
-  if (!rejection) {
-    return <div className="rf-alert rf-alert--danger" role="alert"><div>{errorMessage(error)}</div></div>
-  }
-
-  if (rejection.retryable) {
-    return (
-      <div className="rf-alert rf-alert--warning" role="alert">
-        <div>
-          <strong>TaxCore did not answer.</strong> {asSentence(rejection.message)} It may have been signed, so send the same data again to retry; do not change it.
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="rf-alert rf-alert--danger" role="alert">
-      <div>
-        <strong>TaxCore rejected this invoice.</strong> {asSentence(rejection.message)} Nothing was signed. Fix the data and send it again, or delete it from the Failed list.
-      </div>
-    </div>
   )
 }

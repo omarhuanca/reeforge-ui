@@ -92,4 +92,6 @@ export interface Paginated<T> {
   meta: { current_page: number; last_page: number; total: number; per_page: number }
 }
 
-export const XERO_PAYMENT_TYPES = ['Other', 'Cash', 'Card', 'Check', 'WireTransfer', 'Voucher', 'MobileMoney'] as const
+/** TaxCore payment types: the invoice form and the Xero setting for unpaid invoices share them. */
+export const PAYMENT_TYPES = ['Other', 'Cash', 'Card', 'Check', 'WireTransfer', 'Voucher', 'MobileMoney'] as const
+export const XERO_PAYMENT_TYPES = PAYMENT_TYPES
