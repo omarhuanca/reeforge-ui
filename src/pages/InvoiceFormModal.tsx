@@ -102,10 +102,11 @@ export function InvoiceFormModal({ companyId, onClose }: { companyId: number; on
     <Modal
       title="Fiscalize invoice"
       wide
+      locked={create.isPending}
       onClose={onClose}
       foot={
         <>
-          <button type="button" className="rf-btn rf-btn--secondary" onClick={onClose}>Cancel</button>
+          <button type="button" className="rf-btn rf-btn--secondary" disabled={create.isPending} onClick={onClose}>Cancel</button>
           <button
             type="submit"
             form="invoice-form"

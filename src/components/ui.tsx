@@ -40,6 +40,7 @@ export function Modal({
   children,
   foot,
   wide = false,
+  locked = false,
 }: {
   title: string
   onClose: () => void
@@ -47,6 +48,8 @@ export function Modal({
   foot?: ReactNode
   /** For forms with a table of fields; the default width suits a short confirmation. */
   wide?: boolean
+  /** While true the modal cannot be dismissed (Esc, backdrop): something is in flight and its result must be seen. */
+  locked?: boolean
 }) {
   // Native <dialog> opened with showModal(): focus trap, Esc and ::backdrop come from the browser.
   const ref = useRef<HTMLDialogElement>(null)
@@ -62,10 +65,15 @@ export function Modal({
       ref={ref}
       className={wide ? 'rf-modal rf-modal--wide' : 'rf-modal'}
       aria-labelledby={titleId}
-      onClose={onClose}
+      // Esc is cancelled while locked. Chrome lets a second Esc close it anyway, so a close while locked reopens it.
+      onCancel={(e) => { if (locked) e.preventDefault() }}
+      onClose={() => {
+        if (locked) ref.current?.showModal()
+        else onClose()
+      }}
       onClick={(e) => {
         // A click on the backdrop lands on the <dialog> element itself.
-        if (e.target === ref.current) onClose()
+        if (e.target === ref.current && !locked) onClose()
       }}
     >
       <div className="rf-modal__head">
