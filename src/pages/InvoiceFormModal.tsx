@@ -10,6 +10,7 @@ import {
   INVOICE_TYPES,
   TRANSACTION_TYPES,
   buildInvoice,
+  canAddLine,
   emptyForm,
   emptyLine,
   formFromJson,
@@ -75,7 +76,7 @@ export function InvoiceFormModal({ companyId, onClose }: { companyId: number; on
   const set = (patch: Partial<InvoiceFormState>) => setForm((f) => ({ ...f, ...patch }))
   const setLine = (i: number, patch: Partial<LineForm>) =>
     setForm((f) => syncPayment({ ...f, lines: f.lines.map((l, k) => (k === i ? { ...l, ...patch } : l)) }))
-  const addLine = () => setForm((f) => syncPayment({ ...f, lines: [...f.lines, emptyLine()] }))
+  const addLine = () => setForm((f) => (canAddLine(f) ? syncPayment({ ...f, lines: [...f.lines, emptyLine()] }) : f))
   const removeLine = (i: number) => setForm((f) => (f.lines.length > 1 ? syncPayment({ ...f, lines: f.lines.filter((_, k) => k !== i) }) : f))
   const setPayment = (i: number, patch: Partial<PaymentForm>) =>
     setForm((f) => ({ ...f, paymentTouched: true, payments: f.payments.map((p, k) => (k === i ? { ...p, ...patch } : p)) }))
@@ -181,7 +182,12 @@ export function InvoiceFormModal({ companyId, onClose }: { companyId: number; on
                   </button>
                 </div>
               ))}
-              <div><button type="button" className="rf-btn rf-btn--secondary rf-btn--sm" onClick={addLine}>Add line</button></div>
+              <div className="row">
+            <button type="button" className="rf-btn rf-btn--secondary rf-btn--sm" disabled={!canAddLine(form)} aria-describedby="add-line-hint" onClick={addLine}>Add line</button>
+            {!canAddLine(form) && (
+              <span id="add-line-hint" className="rf-help">Complete the line above first: item name, and quantity and unit price above 0.</span>
+            )}
+          </div>
             </fieldset>
 
             <fieldset className="inv-section">

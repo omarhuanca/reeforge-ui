@@ -85,6 +85,21 @@ export function syncPayment(form: InvoiceFormState): InvoiceFormState {
   return { ...form, payments: [{ ...form.payments[0], amount: total > 0 ? text(total) : '' }] }
 }
 
+/** What is wrong with one line: a name, a quantity and a unit price above 0, and a tax label of 1 or 2 characters. */
+export function lineProblems(line: LineForm, n: number): string[] {
+  const problems: string[] = []
+  if (!line.name.trim()) problems.push(`Line ${n}: the item name is required.`)
+  if (!(toNumber(line.quantity) > 0)) problems.push(`Line ${n}: the quantity must be greater than 0.`)
+  if (line.unitPrice.trim() === '') problems.push(`Line ${n}: enter the unit price.`)
+  else if (!(toNumber(line.unitPrice) > 0)) problems.push(`Line ${n}: the unit price must be greater than 0.`)
+  const label = line.label.trim()
+  if (label.length < 1 || label.length > 2) problems.push(`Line ${n}: the tax label has 1 or 2 characters.`)
+  return problems
+}
+
+/** A new line can be added only once every line so far is complete, so no half-filled line is left behind. */
+export const canAddLine = (form: InvoiceFormState): boolean => form.lines.every((l, i) => lineProblems(l, i + 1).length === 0)
+
 /** What stops the invoice from being sent, in the order the form is filled. Empty when it can be sent. */
 export function invoiceProblems(form: InvoiceFormState): string[] {
   const problems: string[] = []
@@ -100,14 +115,7 @@ export function invoiceProblems(form: InvoiceFormState): string[] {
   if (form.buyerId.trim().length > 20) problems.push('The buyer ID is at most 20 characters.')
   if (form.cashier.trim().length > 50) problems.push('The cashier is at most 50 characters.')
 
-  form.lines.forEach((l, i) => {
-    const n = i + 1
-    if (!l.name.trim()) problems.push(`Line ${n}: the item name is required.`)
-    if (!(toNumber(l.quantity) > 0)) problems.push(`Line ${n}: the quantity must be greater than 0.`)
-    if (!(toNumber(l.unitPrice) >= 0)) problems.push(`Line ${n}: enter the unit price.`)
-    const label = l.label.trim()
-    if (label.length < 1 || label.length > 2) problems.push(`Line ${n}: the tax label has 1 or 2 characters.`)
-  })
+  form.lines.forEach((l, i) => problems.push(...lineProblems(l, i + 1)))
 
   form.payments.forEach((p, i) => {
     if (!p.paymentType) problems.push(`Payment ${i + 1}: choose the payment type.`)
