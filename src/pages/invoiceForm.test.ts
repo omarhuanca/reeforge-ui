@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildInvoice, emptyForm, emptyLine, formFromJson, invoiceProblems, itemsTotal, lineTotal, newExternalId, paymentsTotal, syncPayment, toJsonText, toNumber, type InvoiceFormState } from './invoiceForm'
+import { buildInvoice, canAddLine, emptyForm, emptyLine, formFromJson, invoiceProblems, itemsTotal, lineProblems, lineTotal, newExternalId, paymentsTotal, syncPayment, toJsonText, toNumber, type InvoiceFormState } from './invoiceForm'
 
 const filled = (over: Partial<InvoiceFormState> = {}): InvoiceFormState => ({
   ...emptyForm(new Date(2026, 9, 15, 16, 5, 9)),
@@ -121,5 +121,36 @@ describe('invoice form', () => {
     expect(formFromJson('not json')).toBeNull()
     expect(formFromJson('[]')).toBeNull()
     expect(formFromJson('{"external_id":"x"}')).toBeNull()
+  })
+
+  it('a unit price of 0 or less is refused, with its own message from an empty one', () => {
+    const one = (unitPrice: string) => ({ name: 'x', quantity: '1', unitPrice, label: 'A' })
+    expect(lineProblems(one('0'), 1)).toEqual(['Line 1: the unit price must be greater than 0.'])
+    expect(lineProblems(one('-5'), 1)).toEqual(['Line 1: the unit price must be greater than 0.'])
+    expect(lineProblems(one('abc'), 1)).toEqual(['Line 1: the unit price must be greater than 0.'])
+    expect(lineProblems(one(''), 1)).toEqual(['Line 1: enter the unit price.'])
+    expect(lineProblems(one('0.01'), 1)).toEqual([])
+  })
+
+  it('a quantity of 0 or less is refused', () => {
+    for (const quantity of ['0', '-1', '', 'x']) {
+      expect(lineProblems({ name: 'x', quantity, unitPrice: '10', label: 'A' }, 2)).toEqual(['Line 2: the quantity must be greater than 0.'])
+    }
+  })
+
+  it('a form with a free price cannot be sent', () => {
+    const form = filled({ lines: [{ name: 'Gift', quantity: '1', unitPrice: '0', label: 'A' }], payments: [{ paymentType: 'Cash', amount: '0' }] })
+    expect(invoiceProblems(form)).toEqual(['Line 1: the unit price must be greater than 0.'])
+  })
+
+  it('a line can be added only when every line so far is complete', () => {
+    expect(canAddLine(emptyForm())).toBe(false)
+    expect(canAddLine(filled())).toBe(true)
+    const incomplete = (patch: Partial<InvoiceFormState['lines'][number]>) => filled({ lines: [{ name: 'Mug', quantity: '1', unitPrice: '150', label: 'A' }, { ...emptyLine(), name: 'Tea', unitPrice: '10', ...patch }] })
+    expect(canAddLine(incomplete({}))).toBe(true)
+    expect(canAddLine(incomplete({ name: ' ' }))).toBe(false)
+    expect(canAddLine(incomplete({ quantity: '0' }))).toBe(false)
+    expect(canAddLine(incomplete({ unitPrice: '0' }))).toBe(false)
+    expect(canAddLine(incomplete({ unitPrice: '-1' }))).toBe(false)
   })
 })
