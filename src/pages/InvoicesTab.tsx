@@ -55,7 +55,7 @@ export function InvoicesTab({ companyId, channel, onDeleted }: { companyId: numb
       )}
       {q.data && q.data.data.length > 0 && (
         <div className="rf-table-wrap rf-table-wrap--menus">
-          <table className="rf-table">
+          <table className="rf-table rf-table--stack">
             <thead>
               <tr>
                 <th>External ID</th><th>TaxCore number</th><th>Status</th><th className="rf-col-num">Total</th><th>Created</th>
@@ -65,16 +65,16 @@ export function InvoicesTab({ companyId, channel, onDeleted }: { companyId: numb
             <tbody>
               {q.data.data.map((i) => (
                 <tr key={i.id} onClick={() => setOpen(i.id)} style={{ cursor: 'pointer' }}>
-                  <td className="rf-col-id trunc" title={i.external_id}>{i.external_id}</td>
-                  <td className="rf-col-id">{i.invoice_number ?? '—'}</td>
-                  <td>
+                  <td className="rf-col-id trunc rf-cell-title" title={i.external_id}>{i.external_id}</td>
+                  <td className="rf-col-id" data-label="TaxCore number">{i.invoice_number ?? '—'}</td>
+                  <td data-label="Status">
                     <Badge cls={STATUS_BADGE[i.status].cls}>{STATUS_BADGE[i.status].label}</Badge>
                     {i.warning && <span title={i.warning}> ⚠</span>}
                   </td>
-                  <td className="rf-col-num">{formatVT(i.total_amount)}</td>
-                  <td>{formatDate(i.created_at)}</td>
+                  <td className="rf-col-num" data-label="Total">{formatVT(i.total_amount)}</td>
+                  <td data-label="Created">{formatDate(i.created_at)}</td>
                   {/* Only an invoice TaxCore rejected for good can be deleted; the rest never gets a menu. */}
-                  <td className="rf-col-num" onClick={(e) => e.stopPropagation()}>
+                  <td className="rf-col-num rf-cell-actions" onClick={(e) => e.stopPropagation()}>
                     {canDeleteInvoice(i) && (
                       <Menu label={`Actions for invoice ${i.external_id}`} buttonClass="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" trigger={<IconMore />}>
                         {(close) => (

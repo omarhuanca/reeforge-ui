@@ -70,3 +70,27 @@ dialog.rf-modal.rf-modal--wide { width: min(880px, 100%); }
   .inv-grid:not(.inv-grid--payments) > :nth-child(5) { grid-column: 4; grid-row: 2; }
   .inv-grid--payments { grid-template-columns: 1fr 1fr auto; }
 }
+
+/* Tables become a list of cards when they do not fit: the identifier on top, "label: value" below, the row menu
+   in the corner. The design system's menu tables cannot scroll sideways (the menu would be clipped), so without
+   this they push the whole page wider than the screen. The widest one (invoices) is about 825px; with the side
+   menu and the page padding that needs a window of about 1130px, hence 1180px. Cells that carry a data-label
+   show it; the rest do not. */
+@media (max-width: 1180px) {
+  .rf-table--stack,
+  .rf-table--stack tbody,
+  .rf-table--stack tr,
+  .rf-table--stack td { display: block; width: 100%; }
+  .rf-table--stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .rf-table--stack tr { position: relative; padding: var(--rf-space-3) var(--rf-space-4); border-bottom: 1px solid var(--rf-border); }
+  .rf-table--stack tr:last-child { border-bottom: 0; }
+  .rf-table--stack td { display: flex; justify-content: space-between; align-items: center; gap: 12px; height: auto; min-height: 30px; padding: 2px 0; border: 0; text-align: right; white-space: normal; overflow-wrap: anywhere; }
+  .rf-table--stack td::before { content: attr(data-label); flex: none; color: var(--rf-text-muted); font-size: var(--rf-text-xs); font-weight: 600; text-align: left; }
+  .rf-table--stack td.rf-col-num { text-align: right; }
+  /* Long free text: the label sits above it and the text reads left to right at full width. */
+  .rf-table--stack td.rf-cell-block { flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; }
+  .rf-table--stack td.rf-cell-title { display: block; max-width: none; padding-right: 44px; text-align: left; font-weight: 600; white-space: normal; }
+  .rf-table--stack td.rf-cell-title::before { content: none; }
+  .rf-table--stack td.rf-cell-actions { position: absolute; top: var(--rf-space-2); right: var(--rf-space-3); width: auto; min-height: 0; padding: 0; }
+  .rf-table--stack td.rf-cell-actions::before { content: none; }
+}

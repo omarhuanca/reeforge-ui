@@ -61,15 +61,15 @@ function Connected({ companyId, conn, onConnect }: { companyId: number; conn: Xe
         {pending.data && pending.data.length === 0 && <p className="rf-muted">Nothing is waiting.</p>}
         {pending.data && pending.data.length > 0 && (
           <div className="rf-table-wrap">
-            <table className="rf-table">
+            <table className="rf-table rf-table--stack">
               <thead><tr><th>Number</th><th>Type</th><th>Reason</th><th>Last attempt</th></tr></thead>
               <tbody>
                 {pending.data.map((p) => (
                   <tr key={p.xero_id}>
-                    <td className="rf-col-id">{p.number ?? p.xero_id}</td>
-                    <td>{p.xero_type}</td>
-                    <td>{p.reason}</td>
-                    <td>{formatDate(p.last_attempt_at)}</td>
+                    <td className="rf-col-id rf-cell-title">{p.number ?? p.xero_id}</td>
+                    <td data-label="Type">{p.xero_type}</td>
+                    <td className="rf-cell-block" data-label="Reason">{p.reason}</td>
+                    <td data-label="Last attempt">{formatDate(p.last_attempt_at)}</td>
                   </tr>
                 ))}
               </tbody>
