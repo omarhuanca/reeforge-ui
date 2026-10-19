@@ -85,13 +85,13 @@ export function syncPayment(form: InvoiceFormState): InvoiceFormState {
   return { ...form, payments: [{ ...form.payments[0], amount: total > 0 ? text(total) : '' }] }
 }
 
-/** What is wrong with one line: a name, a quantity and a unit price above 0, and a tax label of 1 or 2 characters. */
+/** What is wrong with one line: a name, a quantity above 0, a unit price of 0 or more (0 is a free item), and a tax label of 1 or 2 characters. */
 export function lineProblems(line: LineForm, n: number): string[] {
   const problems: string[] = []
   if (!line.name.trim()) problems.push(`Line ${n}: the item name is required.`)
   if (!(toNumber(line.quantity) > 0)) problems.push(`Line ${n}: the quantity must be greater than 0.`)
   if (line.unitPrice.trim() === '') problems.push(`Line ${n}: enter the unit price.`)
-  else if (!(toNumber(line.unitPrice) > 0)) problems.push(`Line ${n}: the unit price must be greater than 0.`)
+  else if (!(toNumber(line.unitPrice) >= 0)) problems.push(`Line ${n}: the unit price cannot be negative.`)
   const label = line.label.trim()
   if (label.length < 1 || label.length > 2) problems.push(`Line ${n}: the tax label has 1 or 2 characters.`)
   return problems
