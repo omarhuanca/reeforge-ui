@@ -103,9 +103,10 @@ export function withTaxLabels(form: InvoiceFormState, labels: string[] | null): 
   return { ...form, lines: form.lines.map((l) => (labels.includes(l.label) ? l : { ...l, label: fallback })) }
 }
 
-/** "A · 9%": short enough for a narrow select; the category goes in the tooltip. */
+/** "A · VAT 9%": the category tells apart labels with the same rate (B, N and C are all 0%). */
 export function taxRateText(rate: TaxRate): string {
-  return `${rate.label} · ${Math.round(rate.rate * 100) / 100}%`
+  const percent = Math.round(rate.rate * 100) / 100
+  return `${rate.label} · ${rate.category ? `${rate.category} ` : ''}${percent}%`
 }
 
 /** What is wrong with one line: a name, a quantity above 0, a unit price of 0 or more (0 is a free item), and a tax label of 1 or 2 characters. */
