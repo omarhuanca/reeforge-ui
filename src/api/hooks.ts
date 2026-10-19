@@ -4,6 +4,7 @@ import type {
   Certificate,
   Channel,
   Company,
+  TaxRate,
   DeleteCertificateResult,
   Invoice,
   NewToken,
@@ -66,6 +67,15 @@ export const useCertificates = (companyId: number) =>
   useQuery({
     queryKey: ['certificates', companyId],
     queryFn: () => api<{ data: Certificate[] }>(`/companies/${companyId}/certificates`).then((r) => r.data),
+  })
+
+/** The tax labels TaxCore accepts for the company; nexo-bk keeps them for 10 minutes, so this is cheap to ask on every open. */
+export const useTaxRates = (companyId: number) =>
+  useQuery({
+    queryKey: ['tax-rates', companyId],
+    retry: false,
+    staleTime: 10 * 60_000,
+    queryFn: () => api<{ data: TaxRate[] }>(`/companies/${companyId}/tax-rates`).then((r) => r.data),
   })
 
 export function useUploadCertificate(companyId: number) {

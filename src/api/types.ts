@@ -24,6 +24,13 @@ export interface Company {
   created_at: string
 }
 
+/** A tax label TaxCore accepts for a company, as nexo-bk reads it from the V-SDC. */
+export interface TaxRate {
+  label: string
+  category: string
+  rate: number
+}
+
 export interface Certificate {
   id: number
   uid: string
