@@ -185,7 +185,7 @@ export function InvoiceFormModal({ companyId, onClose }: { companyId: number; on
               <div className="row">
             <button type="button" className="rf-btn rf-btn--secondary rf-btn--sm" disabled={!canAddLine(form)} aria-describedby="add-line-hint" onClick={addLine}>Add line</button>
             {!canAddLine(form) && (
-              <span id="add-line-hint" className="rf-help">Complete the line above first: item name, and quantity and unit price above 0.</span>
+              <span id="add-line-hint" className="rf-help">Complete the line above first: item name, quantity above 0 and a unit price (0 or more).</span>
             )}
           </div>
             </fieldset>

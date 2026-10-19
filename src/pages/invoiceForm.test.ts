@@ -123,13 +123,13 @@ describe('invoice form', () => {
     expect(formFromJson('{"external_id":"x"}')).toBeNull()
   })
 
-  it('a unit price of 0 or less is refused, with its own message from an empty one', () => {
+  it('a unit price of 0 is valid (a free item); a negative or non-numeric one is refused, with its own message from an empty one', () => {
     const one = (unitPrice: string) => ({ name: 'x', quantity: '1', unitPrice, label: 'A' })
-    expect(lineProblems(one('0'), 1)).toEqual(['Line 1: the unit price must be greater than 0.'])
-    expect(lineProblems(one('-5'), 1)).toEqual(['Line 1: the unit price must be greater than 0.'])
-    expect(lineProblems(one('abc'), 1)).toEqual(['Line 1: the unit price must be greater than 0.'])
-    expect(lineProblems(one(''), 1)).toEqual(['Line 1: enter the unit price.'])
+    expect(lineProblems(one('0'), 1)).toEqual([])
     expect(lineProblems(one('0.01'), 1)).toEqual([])
+    expect(lineProblems(one('-5'), 1)).toEqual(['Line 1: the unit price cannot be negative.'])
+    expect(lineProblems(one('abc'), 1)).toEqual(['Line 1: the unit price cannot be negative.'])
+    expect(lineProblems(one(''), 1)).toEqual(['Line 1: enter the unit price.'])
   })
 
   it('a quantity of 0 or less is refused', () => {
@@ -138,9 +138,16 @@ describe('invoice form', () => {
     }
   })
 
-  it('a form with a free price cannot be sent', () => {
-    const form = filled({ lines: [{ name: 'Gift', quantity: '1', unitPrice: '0', label: 'A' }], payments: [{ paymentType: 'Cash', amount: '0' }] })
-    expect(invoiceProblems(form)).toEqual(['Line 1: the unit price must be greater than 0.'])
+  it('an invoice with a free item can be sent, and the item goes out with price 0', () => {
+    const form = filled({
+      lines: [
+        { name: 'Mug', quantity: '1', unitPrice: '150', label: 'A' },
+        { name: 'Free sample', quantity: '1', unitPrice: '0', label: 'A' },
+      ],
+      payments: [{ paymentType: 'Cash', amount: '150' }],
+    })
+    expect(invoiceProblems(form)).toEqual([])
+    expect(buildInvoice(form).invoice.items[1]).toEqual({ name: 'Free sample', quantity: 1, unitPrice: 0, labels: ['A'], totalAmount: 0 })
   })
 
   it('a line can be added only when every line so far is complete', () => {
@@ -150,7 +157,8 @@ describe('invoice form', () => {
     expect(canAddLine(incomplete({}))).toBe(true)
     expect(canAddLine(incomplete({ name: ' ' }))).toBe(false)
     expect(canAddLine(incomplete({ quantity: '0' }))).toBe(false)
-    expect(canAddLine(incomplete({ unitPrice: '0' }))).toBe(false)
+    expect(canAddLine(incomplete({ unitPrice: '0' }))).toBe(true)
+    expect(canAddLine(incomplete({ unitPrice: '' }))).toBe(false)
     expect(canAddLine(incomplete({ unitPrice: '-1' }))).toBe(false)
   })
 })
