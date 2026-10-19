@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildInvoice, canAddLine, emptyForm, emptyLine, formFromJson, invoiceProblems, itemsTotal, lineProblems, lineTotal, newExternalId, paymentsTotal, syncPayment, toJsonText, toNumber, type InvoiceFormState } from './invoiceForm'
+import { buildInvoice, canAddLine, defaultTaxLabel, emptyForm, emptyLine, formFromJson, invoiceProblems, itemsTotal, lineProblems, lineTotal, newExternalId, paymentsTotal, syncPayment, taxRateText, toJsonText, toNumber, withTaxLabels, type InvoiceFormState } from './invoiceForm'
 
 const filled = (over: Partial<InvoiceFormState> = {}): InvoiceFormState => ({
   ...emptyForm(new Date(2026, 9, 15, 16, 5, 9)),
@@ -160,5 +160,28 @@ describe('invoice form', () => {
     expect(canAddLine(incomplete({ unitPrice: '0' }))).toBe(true)
     expect(canAddLine(incomplete({ unitPrice: '' }))).toBe(false)
     expect(canAddLine(incomplete({ unitPrice: '-1' }))).toBe(false)
+  })
+
+  it('a new line starts on "A" when TaxCore offers it, else on the first label, and on "A" when none is known', () => {
+    expect(defaultTaxLabel(['B', 'A', 'D'])).toBe('A')
+    expect(defaultTaxLabel(['D', 'B'])).toBe('D')
+    expect(defaultTaxLabel([])).toBe('A')
+    expect(defaultTaxLabel(null)).toBe('A')
+  })
+
+  it('moves a line off a label TaxCore does not offer, and leaves a good form and an unknown list alone', () => {
+    const form = filled({ lines: [{ name: 'x', quantity: '1', unitPrice: '10', label: 'A' }, { name: 'y', quantity: '1', unitPrice: '10', label: 'N' }] })
+    const moved = withTaxLabels(form, ['B', 'N'])
+    expect(moved.lines.map((l) => l.label)).toEqual(['B', 'N'])
+    expect(withTaxLabels(form, ['A', 'N'])).toBe(form)
+    expect(withTaxLabels(form, null)).toBe(form)
+    expect(withTaxLabels(form, [])).toBe(form)
+  })
+
+  it('writes a rate as its label and percentage', () => {
+    expect(taxRateText({ label: 'A', category: 'VAT', rate: 9 })).toBe('A · 9%')
+    expect(taxRateText({ label: 'D', category: 'Excise', rate: 15.5 })).toBe('D · 15.5%')
+    expect(taxRateText({ label: 'B', category: '', rate: 0 })).toBe('B · 0%')
+    expect(taxRateText({ label: 'E', category: 'VAT', rate: 12.345 })).toBe('E · 12.35%')
   })
 })

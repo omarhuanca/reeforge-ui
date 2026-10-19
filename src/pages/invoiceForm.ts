@@ -1,3 +1,5 @@
+import type { TaxRate } from '../api/types'
+
 /**
  * The invoice form and the TaxCore InvoiceRequest (v3) nexo-bk expects under "invoice".
  * Pure logic: the amounts are checked here with the same rules the API applies (nexo-bk
@@ -42,7 +44,7 @@ export function newExternalId(now = new Date()): string {
   return `INV-${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`
 }
 
-export const emptyLine = (): LineForm => ({ name: '', quantity: '1', unitPrice: '', label: 'A' })
+export const emptyLine = (label = 'A'): LineForm => ({ name: '', quantity: '1', unitPrice: '', label })
 
 export function emptyForm(now = new Date()): InvoiceFormState {
   return {
@@ -83,6 +85,27 @@ export function syncPayment(form: InvoiceFormState): InvoiceFormState {
   if (form.paymentTouched || form.payments.length !== 1) return form
   const total = itemsTotal(form)
   return { ...form, payments: [{ ...form.payments[0], amount: total > 0 ? text(total) : '' }] }
+}
+
+/** The label a new line starts with: "A" when TaxCore offers it, else the first one offered ("A" when none is known). */
+export function defaultTaxLabel(labels: string[] | null): string {
+  if (!labels || labels.length === 0) return 'A'
+  return labels.includes('A') ? 'A' : labels[0]
+}
+
+/**
+ * The form with every line on a label TaxCore offers: a line that holds one it does not (the initial "A" when
+ * the company has no "A") moves to the default. Without a known list the form is returned untouched.
+ */
+export function withTaxLabels(form: InvoiceFormState, labels: string[] | null): InvoiceFormState {
+  if (!labels || labels.length === 0 || form.lines.every((l) => labels.includes(l.label))) return form
+  const fallback = defaultTaxLabel(labels)
+  return { ...form, lines: form.lines.map((l) => (labels.includes(l.label) ? l : { ...l, label: fallback })) }
+}
+
+/** "A · 9%": short enough for a narrow select; the category goes in the tooltip. */
+export function taxRateText(rate: TaxRate): string {
+  return `${rate.label} · ${Math.round(rate.rate * 100) / 100}%`
 }
 
 /** What is wrong with one line: a name, a quantity above 0, a unit price of 0 or more (0 is a free item), and a tax label of 1 or 2 characters. */

@@ -1,6 +1,6 @@
-import { useState, type FormEvent } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 import { errorMessage } from '../api/client'
-import { useCreateInvoice, useInvoices } from '../api/hooks'
+import { useCreateInvoice, useInvoices, useTaxRates } from '../api/hooks'
 import { asSentence, taxCoreRejection } from '../api/taxcore'
 import { PAYMENT_TYPES } from '../api/types'
 import { IconTrash } from '../components/icons'
@@ -11,6 +11,7 @@ import {
   TRANSACTION_TYPES,
   buildInvoice,
   canAddLine,
+  defaultTaxLabel,
   emptyForm,
   emptyLine,
   formFromJson,
@@ -19,7 +20,9 @@ import {
   lineTotal,
   paymentsTotal,
   syncPayment,
+  taxRateText,
   toJsonText,
+  withTaxLabels,
   type InvoiceFormState,
   type LineForm,
   type PaymentForm,
@@ -37,7 +40,13 @@ const SLOW_AFTER_MS = 8000
 export function InvoiceFormModal({ companyId, onClose }: { companyId: number; onClose: () => void }) {
   const create = useCreateInvoice(companyId)
   const slow = useSlow(create.isPending, SLOW_AFTER_MS)
-  const [form, setForm] = useState<InvoiceFormState>(() => emptyForm())
+  const rates = useTaxRates(companyId)
+  // The labels TaxCore offers this company; without them (still loading, or TaxCore did not answer) the label is typed.
+  const offered = rates.data && rates.data.length > 0 ? rates.data : null
+  const labels = offered ? offered.map((r) => r.label) : null
+  const [draft, setForm] = useState<InvoiceFormState>(() => emptyForm())
+  // What the user typed, with any line on a label TaxCore does not offer moved to the default one.
+  const form = useMemo(() => withTaxLabels(draft, offered ? offered.map((r) => r.label) : null), [draft, offered])
   const [mode, setMode] = useState<'form' | 'json'>('form')
   const [jsonText, setJsonText] = useState('')
   const [dropped, setDropped] = useState<string[]>([])
@@ -76,7 +85,7 @@ export function InvoiceFormModal({ companyId, onClose }: { companyId: number; on
   const set = (patch: Partial<InvoiceFormState>) => setForm((f) => ({ ...f, ...patch }))
   const setLine = (i: number, patch: Partial<LineForm>) =>
     setForm((f) => syncPayment({ ...f, lines: f.lines.map((l, k) => (k === i ? { ...l, ...patch } : l)) }))
-  const addLine = () => setForm((f) => (canAddLine(f) ? syncPayment({ ...f, lines: [...f.lines, emptyLine()] }) : f))
+  const addLine = () => setForm((f) => (canAddLine(f) ? syncPayment({ ...f, lines: [...f.lines, emptyLine(defaultTaxLabel(labels))] }) : f))
   const removeLine = (i: number) => setForm((f) => (f.lines.length > 1 ? syncPayment({ ...f, lines: f.lines.filter((_, k) => k !== i) }) : f))
   const setPayment = (i: number, patch: Partial<PaymentForm>) =>
     setForm((f) => ({ ...f, paymentTouched: true, payments: f.payments.map((p, k) => (k === i ? { ...p, ...patch } : p)) }))
@@ -175,7 +184,19 @@ export function InvoiceFormModal({ companyId, onClose }: { companyId: number; on
                   <input className="rf-input" aria-label={`Line ${i + 1} item name`} placeholder="Item name" value={l.name} onChange={(e) => setLine(i, { name: e.target.value })} />
                   <input className="rf-input" aria-label={`Line ${i + 1} quantity`} inputMode="decimal" value={l.quantity} onChange={(e) => setLine(i, { quantity: e.target.value })} />
                   <input className="rf-input" aria-label={`Line ${i + 1} unit price`} inputMode="decimal" placeholder="0" value={l.unitPrice} onChange={(e) => setLine(i, { unitPrice: e.target.value })} />
-                  <input className="rf-input rf-input--mono" aria-label={`Line ${i + 1} tax label`} maxLength={2} value={l.label} onChange={(e) => setLine(i, { label: e.target.value.toUpperCase() })} />
+                  {offered ? (
+                    <select
+                      className="rf-select"
+                      aria-label={`Line ${i + 1} tax label`}
+                      title={offered.find((r) => r.label === l.label)?.category}
+                      value={l.label}
+                      onChange={(e) => setLine(i, { label: e.target.value })}
+                    >
+                      {offered.map((r) => <option key={r.label} value={r.label} title={r.category}>{taxRateText(r)}</option>)}
+                    </select>
+                  ) : (
+                    <input className="rf-input rf-input--mono" aria-label={`Line ${i + 1} tax label`} maxLength={2} disabled={rates.isLoading} value={l.label} onChange={(e) => setLine(i, { label: e.target.value.toUpperCase() })} />
+                  )}
                   <span className="inv-num inv-total" aria-label={`Line ${i + 1} total`}>{money(lineTotal(l))}</span>
                   <button type="button" className="rf-btn rf-btn--ghost rf-icon-btn rf-btn--sm" aria-label={`Remove line ${i + 1}`} disabled={form.lines.length === 1} onClick={() => removeLine(i)}>
                     <IconTrash />
@@ -188,6 +209,14 @@ export function InvoiceFormModal({ companyId, onClose }: { companyId: number; on
               <span id="add-line-hint" className="rf-help">Complete the line above first: item name, quantity above 0 and a unit price (0 or more).</span>
             )}
           </div>
+              {rates.isError && (
+                <div className="rf-alert rf-alert--warning" role="status">
+                  <div>
+                    The tax labels could not be loaded from TaxCore, so each label is typed.{' '}
+                    <button type="button" className="rf-link" onClick={() => rates.refetch()}>Try again</button>
+                  </div>
+                </div>
+              )}
             </fieldset>
 
             <fieldset className="inv-section">
