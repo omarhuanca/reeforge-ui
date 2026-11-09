@@ -178,10 +178,13 @@ describe('invoice form', () => {
     expect(withTaxLabels(form, [])).toBe(form)
   })
 
-  it('writes a rate as its label and percentage', () => {
-    expect(taxRateText({ label: 'A', category: 'VAT', rate: 9 })).toBe('A · 9%')
-    expect(taxRateText({ label: 'D', category: 'Excise', rate: 15.5 })).toBe('D · 15.5%')
+  it('writes a rate as its label, category and percentage, so labels with the same rate can be told apart', () => {
+    expect(taxRateText({ label: 'A', category: 'VAT', rate: 9 })).toBe('A · VAT 9%')
+    expect(taxRateText({ label: 'D', category: 'VAT', rate: 15 })).toBe('D · VAT 15%')
+    expect(taxRateText({ label: 'C', category: 'VAT-EXCL', rate: 0 })).toBe('C · VAT-EXCL 0%')
+    expect(taxRateText({ label: 'N', category: 'N-TAX', rate: 0 })).toBe('N · N-TAX 0%')
+    expect(taxRateText({ label: 'P', category: 'PBL', rate: 0.6 })).toBe('P · PBL 0.6%')
     expect(taxRateText({ label: 'B', category: '', rate: 0 })).toBe('B · 0%')
-    expect(taxRateText({ label: 'E', category: 'VAT', rate: 12.345 })).toBe('E · 12.35%')
+    expect(taxRateText({ label: 'E', category: 'STT', rate: 12.345 })).toBe('E · STT 12.35%')
   })
 })
